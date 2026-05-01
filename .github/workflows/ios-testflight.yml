@@ -1,0 +1,122 @@
+name: iOS Build & TestFlight
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: app/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web assets
+        run: npm run build
+
+      - name: Verify web assets
+        run: |
+          echo "=== Vérification assets web ==="
+          [ -f dist/index.html ] && echo "✓ dist/index.html" || (echo "✗ dist/index.html manquant" && exit 1)
+          JS_COUNT=$(find dist/assets -name "*.js" 2>/dev/null | wc -l)
+          [ "$JS_COUNT" -gt 0 ] && echo "✓ $JS_COUNT fichier(s) JS" || (echo "✗ JS manquant" && exit 1)
+
+      - name: Add iOS platform
+        run: |
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
+
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
+
+      - name: Select latest Xcode
+        run: |
+          XCODE=$(ls /Applications | grep "Xcode" | sort -V | tail -1)
+          sudo xcode-select -s "/Applications/$XCODE/Contents/Developer"
+          echo "Xcode sélectionné : $XCODE"
+          xcodebuild -version
+
+      - name: Set Info.plist
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          BUILD_NUMBER=$(date +%Y%m%d%H%M)
+
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.affichagescolaire.app" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName 'Affichage Scolaire'" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$PLIST"
+
+          /usr/libexec/PlistBuddy -c "Delete :WKCustomSchemes" "$PLIST" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :WKCustomSchemes array" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :WKCustomSchemes:0 string affichagescolaire" "$PLIST"
+
+      - name: Build for simulator (validation)
+        run: |
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | tail -1 | sed 's/.*(\([^)]*\)).*/\1/')
+          echo "Simulateur : $SIMULATOR"
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -destination "id=$SIMULATOR" \
+            -derivedDataPath build/sim \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tail -30
+
+      - name: Verify app bundle
+        run: |
+          APP=$(find build/sim -name "App.app" | head -1)
+          echo "=== Bundle : $APP ==="
+          [ -d "$APP/public" ] && echo "✓ public/" || echo "✗ public/ manquant"
+          [ -f "$APP/public/index.html" ] && echo "✓ index.html" || echo "✗ index.html manquant"
+          [ -f "$APP/capacitor.config.json" ] && echo "✓ capacitor.config.json" || echo "✗ capacitor.config.json manquant"
+          /usr/libexec/PlistBuddy -c "Print :WKCustomSchemes" "$APP/Info.plist" && echo "✓ WKCustomSchemes" || echo "✗ WKCustomSchemes manquant"
+
+      - name: Boot simulator & capture screenshot
+        run: |
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | tail -1 | sed 's/.*(\([^)]*\)).*/\1/')
+          xcrun simctl boot "$SIMULATOR" 2>/dev/null || true
+          sleep 5
+          APP=$(find build/sim -name "App.app" | head -1)
+          xcrun simctl install "$SIMULATOR" "$APP"
+          xcrun simctl launch "$SIMULATOR" com.affichagescolaire.app
+          sleep 20
+          xcrun simctl io "$SIMULATOR" screenshot screenshot.png
+          echo "Screenshot capturé"
+
+      - name: Capture logs
+        if: always()
+        run: |
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | tail -1 | sed 's/.*(\([^)]*\)).*/\1/')
+          xcrun simctl spawn "$SIMULATOR" log stream \
+            --predicate 'process == "App" OR subsystem == "com.apple.webkit"' \
+            --timeout 5 2>/dev/null | tee simulator.log || true
+          echo "=== Erreurs détectées ==="
+          grep -i "error\|failed\|capacitor\|webkit" simulator.log | head -30 || echo "Aucune erreur"
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-${{ github.run_number }}
+          path: |
+            app/screenshot.png
+            app/simulator.log
+          retention-days: 7
