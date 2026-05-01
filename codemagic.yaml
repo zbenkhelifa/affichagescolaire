@@ -32,6 +32,24 @@ workflows:
           fi
           [ -d "ios/App" ] || (echo "Échec cap add ios" && exit 1)
 
+      - name: Generate app icons
+        working_directory: app
+        script: |
+          SRC="resources/icon.png"
+          ICONSET="ios/App/App/Assets.xcassets/AppIcon.appiconset"
+          magick "$SRC" -resize 40x40    "$ICONSET/AppIcon-20@2x.png"    2>/dev/null || convert "$SRC" -resize 40x40    "$ICONSET/AppIcon-20@2x.png"
+          magick "$SRC" -resize 60x60    "$ICONSET/AppIcon-20@3x.png"    2>/dev/null || convert "$SRC" -resize 60x60    "$ICONSET/AppIcon-20@3x.png"
+          magick "$SRC" -resize 58x58    "$ICONSET/AppIcon-29@2x.png"    2>/dev/null || convert "$SRC" -resize 58x58    "$ICONSET/AppIcon-29@2x.png"
+          magick "$SRC" -resize 87x87    "$ICONSET/AppIcon-29@3x.png"    2>/dev/null || convert "$SRC" -resize 87x87    "$ICONSET/AppIcon-29@3x.png"
+          magick "$SRC" -resize 80x80    "$ICONSET/AppIcon-40@2x.png"    2>/dev/null || convert "$SRC" -resize 80x80    "$ICONSET/AppIcon-40@2x.png"
+          magick "$SRC" -resize 120x120  "$ICONSET/AppIcon-40@3x.png"    2>/dev/null || convert "$SRC" -resize 120x120  "$ICONSET/AppIcon-40@3x.png"
+          magick "$SRC" -resize 120x120  "$ICONSET/AppIcon-60@2x.png"    2>/dev/null || convert "$SRC" -resize 120x120  "$ICONSET/AppIcon-60@2x.png"
+          magick "$SRC" -resize 180x180  "$ICONSET/AppIcon-60@3x.png"    2>/dev/null || convert "$SRC" -resize 180x180  "$ICONSET/AppIcon-60@3x.png"
+          magick "$SRC" -resize 152x152  "$ICONSET/AppIcon-76@2x.png"    2>/dev/null || convert "$SRC" -resize 152x152  "$ICONSET/AppIcon-76@2x.png"
+          magick "$SRC" -resize 167x167  "$ICONSET/AppIcon-83.5@2x.png"  2>/dev/null || convert "$SRC" -resize 167x167  "$ICONSET/AppIcon-83.5@2x.png"
+          magick "$SRC" -resize 1024x1024 "$ICONSET/AppIcon-1024@1x.png" 2>/dev/null || convert "$SRC" -resize 1024x1024 "$ICONSET/AppIcon-1024@1x.png"
+          echo "✓ Icônes générées"
+
       - name: Patch AppDelegate (Capacitor 8 SPM bug)
         working_directory: app
         script: |
