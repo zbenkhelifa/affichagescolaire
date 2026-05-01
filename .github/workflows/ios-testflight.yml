@@ -36,21 +36,17 @@ jobs:
           JS_COUNT=$(find dist/assets -name "*.js" 2>/dev/null | wc -l)
           [ "$JS_COUNT" -gt 0 ] && echo "✓ $JS_COUNT fichier(s) JS" || (echo "✗ JS manquant" && exit 1)
 
-      - name: Add iOS platform
-        run: |
-          if [ ! -d "ios" ]; then
-            npx cap add ios
-          fi
-          [ -d "ios" ] || (echo "Échec cap add ios" && exit 1)
-
       - name: Install CocoaPods
         run: |
           sudo gem install cocoapods --no-document 2>&1 | tail -3
           pod --version
 
-      - name: Pod install
-        working-directory: app/ios/App
-        run: pod install --repo-update
+      - name: Add iOS platform
+        run: |
+          if [ ! -d "ios" ]; then
+            npx cap add ios
+          fi
+          [ -f "ios/App/Podfile" ] || (echo "Podfile manquant après cap add ios" && ls -la ios/ && exit 1)
 
       - name: Sync Capacitor iOS
         run: npx cap sync ios
@@ -59,7 +55,7 @@ jobs:
         run: |
           [ -f "ios/App/App.xcworkspace/contents.xcworkspacedata" ] \
             && echo "✓ xcworkspace présent" \
-            || (echo "✗ xcworkspace manquant après pod install" && ls -la ios/App/ && exit 1)
+            || (echo "✗ xcworkspace manquant" && ls -la ios/App/ && exit 1)
 
       - name: Select Xcode & detect simulator
         run: |
