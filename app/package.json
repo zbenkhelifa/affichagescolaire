@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "icons": "bash generate-icons.sh"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.1",
