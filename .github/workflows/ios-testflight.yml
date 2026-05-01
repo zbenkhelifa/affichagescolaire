@@ -8,7 +8,7 @@ on:
 jobs:
   build-ios:
     runs-on: macos-14
-    timeout-minutes: 45
+    timeout-minutes: 60
     defaults:
       run:
         working-directory: app
@@ -41,9 +41,25 @@ jobs:
           if [ ! -d "ios" ]; then
             npx cap add ios
           fi
+          [ -d "ios" ] || (echo "Échec cap add ios" && exit 1)
+
+      - name: Install CocoaPods
+        run: |
+          sudo gem install cocoapods --no-document 2>&1 | tail -3
+          pod --version
+
+      - name: Pod install
+        working-directory: app/ios/App
+        run: pod install --repo-update
 
       - name: Sync Capacitor iOS
         run: npx cap sync ios
+
+      - name: Verify workspace exists
+        run: |
+          [ -f "ios/App/App.xcworkspace/contents.xcworkspacedata" ] \
+            && echo "✓ xcworkspace présent" \
+            || (echo "✗ xcworkspace manquant après pod install" && ls -la ios/App/ && exit 1)
 
       - name: Select Xcode & detect simulator
         run: |
@@ -51,7 +67,6 @@ jobs:
           sudo xcode-select -s "/Applications/$XCODE/Contents/Developer"
           xcodebuild -version
 
-          # Sélectionne un iPhone disponible et mémorise l'ID
           SIM_ID=$(xcrun simctl list devices available -j \
             | python3 -c "
           import sys, json
@@ -64,10 +79,8 @@ jobs:
                           iphones.append(d['udid'])
           print(iphones[-1] if iphones else '')
           ")
-          if [ -z "$SIM_ID" ]; then
-            echo "Aucun simulateur iPhone disponible" && exit 1
-          fi
-          echo "Simulateur sélectionné : $SIM_ID"
+          [ -n "$SIM_ID" ] || (echo "Aucun simulateur iPhone disponible" && exit 1)
+          echo "Simulateur : $SIM_ID"
           echo "SIM_ID=$SIM_ID" >> "$GITHUB_ENV"
 
       - name: Set Info.plist
@@ -86,15 +99,7 @@ jobs:
 
       - name: Build for simulator
         run: |
-          set -o pipefail
           xcodebuild \
-            -workspace ios/App/App.xcworkspace \
-            -scheme App \
-            -configuration Debug \
-            -destination "id=$SIM_ID" \
-            -derivedDataPath build/sim \
-            CODE_SIGNING_ALLOWED=NO \
-            build 2>&1 | xcpretty || xcodebuild \
             -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Debug \
@@ -106,8 +111,8 @@ jobs:
       - name: Verify app bundle
         run: |
           APP=$(find build/sim -name "App.app" -not -path "*/SourcePackages/*" | head -1)
-          echo "Bundle : $APP"
           [ -n "$APP" ] || (echo "App.app introuvable" && exit 1)
+          echo "Bundle : $APP"
           [ -d "$APP/public" ] && echo "✓ public/" || echo "✗ public/ manquant"
           [ -f "$APP/public/index.html" ] && echo "✓ index.html" || echo "✗ index.html manquant"
           [ -f "$APP/capacitor.config.json" ] && echo "✓ capacitor.config.json" || echo "✗ capacitor.config.json manquant"
@@ -117,7 +122,6 @@ jobs:
       - name: Boot simulator & capture screenshot
         run: |
           xcrun simctl boot "$SIM_ID" 2>/dev/null || true
-          # Attendre que le simulateur soit prêt
           for i in $(seq 1 12); do
             STATE=$(xcrun simctl list devices | grep "$SIM_ID" | grep -o "Booted" || true)
             [ "$STATE" = "Booted" ] && break
