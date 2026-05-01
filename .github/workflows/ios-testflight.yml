@@ -36,26 +36,33 @@ jobs:
           JS_COUNT=$(find dist/assets -name "*.js" 2>/dev/null | wc -l)
           [ "$JS_COUNT" -gt 0 ] && echo "✓ $JS_COUNT fichier(s) JS" || (echo "✗ JS manquant" && exit 1)
 
-      - name: Install CocoaPods
-        run: |
-          sudo gem install cocoapods --no-document 2>&1 | tail -3
-          pod --version
-
       - name: Add iOS platform
         run: |
           if [ ! -d "ios" ]; then
             npx cap add ios
           fi
-          [ -f "ios/App/Podfile" ] || (echo "Podfile manquant après cap add ios" && ls -la ios/ && exit 1)
+          # Capacitor 8 utilise SPM (pas de Podfile)
+          [ -d "ios/App" ] || (echo "Échec cap add ios" && exit 1)
 
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
-      - name: Verify workspace exists
+      - name: Detect project structure
         run: |
-          [ -f "ios/App/App.xcworkspace/contents.xcworkspacedata" ] \
-            && echo "✓ xcworkspace présent" \
-            || (echo "✗ xcworkspace manquant" && ls -la ios/App/ && exit 1)
+          echo "=== Structure ios/App/ ==="
+          ls -la ios/App/
+          # Capacitor 8 + SPM : xcodeproj sans workspace séparé
+          if [ -d "ios/App/App.xcworkspace" ]; then
+            echo "XCODE_FLAG=-workspace" >> "$GITHUB_ENV"
+            echo "XCODE_PROJECT=ios/App/App.xcworkspace" >> "$GITHUB_ENV"
+            echo "Utilisation du workspace"
+          elif [ -d "ios/App/App.xcodeproj" ]; then
+            echo "XCODE_FLAG=-project" >> "$GITHUB_ENV"
+            echo "XCODE_PROJECT=ios/App/App.xcodeproj" >> "$GITHUB_ENV"
+            echo "Utilisation du project (SPM)"
+          else
+            echo "Ni xcworkspace ni xcodeproj trouvé" && exit 1
+          fi
 
       - name: Select Xcode & detect simulator
         run: |
@@ -96,7 +103,7 @@ jobs:
       - name: Build for simulator
         run: |
           xcodebuild \
-            -workspace ios/App/App.xcworkspace \
+            $XCODE_FLAG "$XCODE_PROJECT" \
             -scheme App \
             -configuration Debug \
             -destination "id=$SIM_ID" \
@@ -112,7 +119,6 @@ jobs:
           [ -d "$APP/public" ] && echo "✓ public/" || echo "✗ public/ manquant"
           [ -f "$APP/public/index.html" ] && echo "✓ index.html" || echo "✗ index.html manquant"
           [ -f "$APP/capacitor.config.json" ] && echo "✓ capacitor.config.json" || echo "✗ capacitor.config.json manquant"
-          /usr/libexec/PlistBuddy -c "Print :WKCustomSchemes" "$APP/Info.plist" && echo "✓ WKCustomSchemes" || echo "✗ WKCustomSchemes manquant"
           echo "APP_PATH=$APP" >> "$GITHUB_ENV"
 
       - name: Boot simulator & capture screenshot
