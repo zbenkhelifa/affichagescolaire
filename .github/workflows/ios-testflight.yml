@@ -41,8 +41,18 @@ jobs:
           if [ ! -d "ios" ]; then
             npx cap add ios
           fi
-          # Capacitor 8 utilise SPM (pas de Podfile)
           [ -d "ios/App" ] || (echo "Échec cap add ios" && exit 1)
+
+      - name: Patch AppDelegate (Capacitor 8 SPM bug)
+        run: |
+          DELEGATE="ios/App/App/AppDelegate.swift"
+          # ApplicationDelegateProxy n'expose pas application(_:continue:restorationHandler:) en SPM
+          # On remplace l'appel par un simple retour false
+          sed -i '' \
+            's/return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)/return false/' \
+            "$DELEGATE"
+          echo "AppDelegate.swift patché"
+          grep -n "continue:" "$DELEGATE" || echo "Ligne problématique supprimée"
 
       - name: Sync Capacitor iOS
         run: npx cap sync ios

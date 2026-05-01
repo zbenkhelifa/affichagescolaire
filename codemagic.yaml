@@ -30,6 +30,16 @@ workflows:
           if [ ! -d "ios" ]; then
             npx cap add ios
           fi
+          [ -d "ios/App" ] || (echo "Échec cap add ios" && exit 1)
+
+      - name: Patch AppDelegate (Capacitor 8 SPM bug)
+        working_directory: app
+        script: |
+          DELEGATE="ios/App/App/AppDelegate.swift"
+          sed -i '' \
+            's/return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)/return false/' \
+            "$DELEGATE"
+          echo "AppDelegate.swift patché"
 
       - name: Sync Capacitor iOS
         working_directory: app
