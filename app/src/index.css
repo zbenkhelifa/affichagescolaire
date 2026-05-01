@@ -1,0 +1,74 @@
+@import '@fontsource/syne/400.css';
+@import '@fontsource/syne/600.css';
+@import '@fontsource/syne/700.css';
+@import '@fontsource/syne/800.css';
+@import '@fontsource/dm-sans/300.css';
+@import '@fontsource/dm-sans/400.css';
+@import '@fontsource/dm-sans/500.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: #0a1628;
+    color: #dce8ff;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+  }
+
+  #root {
+    height: 100vh;
+    overflow: hidden;
+  }
+}
+
+/* ── Thème sombre (unique) ── */
+.display-root {
+  --bg-grad-1:      #162a5a;
+  --bg-grad-2:      #0a1628;
+  --bg-grad-3:      #1a2e4a;
+  --bg-topbar-from: rgba(26,58,107,0.9);
+  --bg-topbar-to:   rgba(10,22,40,0.95);
+  --bg-info-panel:  rgba(10,22,40,0.6);
+  --text-main:      #dce8ff;
+  --text-muted:     rgba(220,232,255,0.5);
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(232,184,75,0.2); border-radius: 2px; }
+}
+
+@keyframes ticker-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@layer utilities {
+
+  .glass-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(232,184,75,0.12);
+    backdrop-filter: blur(10px);
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #e8b84b, #e05c3a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

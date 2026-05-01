@@ -1,0 +1,10 @@
+{
+  "projects": {
+    "default": "actuecole",
+    "actu": "scolactu",
+    "landing page": "actuecole",
+    "scolactu": "scolactu"
+  },
+  "targets": {},
+  "etags": {}
+}

@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <clipPath id="headerClip">
+      <rect x="130" y="200" width="764" height="82" rx="32" ry="32"/>
+    </clipPath>
+    <clipPath id="boardClip">
+      <rect x="130" y="200" width="764" height="520" rx="32" ry="32"/>
+    </clipPath>
+  </defs>
+
+  <!-- Fond bleu -->
+  <rect width="1024" height="1024" rx="220" ry="220" fill="#1D4ED8"/>
+
+  <!-- Reflet subtil -->
+  <ellipse cx="350" cy="290" rx="240" ry="130" fill="#3B82F6" opacity="0.30"/>
+
+  <!-- Panneau blanc principal -->
+  <rect x="130" y="200" width="764" height="520" rx="32" ry="32" fill="#EFF6FF"/>
+
+  <!-- Barre titre bleue (clippée pour les angles) -->
+  <g clip-path="url(#boardClip)">
+    <rect x="130" y="200" width="764" height="86" fill="#1E40AF"/>
+  </g>
+
+  <!-- Titre dans la barre - clippé -->
+  <g clip-path="url(#headerClip)">
+    <text x="476" y="256" font-family="Arial, sans-serif" font-weight="800" font-size="30" fill="white" text-anchor="middle" letter-spacing="2">AFFICHAGE SCOLAIRE</text>
+  </g>
+
+  <!-- Badge notification -->
+  <circle cx="860" cy="218" r="34" fill="#EF4444"/>
+  <text x="860" y="230" font-family="Arial, sans-serif" font-weight="900" font-size="30" fill="white" text-anchor="middle">!</text>
+
+  <!-- === Contenu du panneau === -->
+
+  <!-- Actu 1 -->
+  <rect x="178" y="322" width="400" height="18" rx="6" fill="#1E3A8A" opacity="0.8"/>
+  <rect x="596" y="320" width="100" height="22" rx="10" fill="#BFDBFE"/>
+  <rect x="178" y="352" width="648" height="11" rx="4" fill="#93C5FD"/>
+  <rect x="178" y="370" width="600" height="11" rx="4" fill="#93C5FD" opacity="0.75"/>
+  <rect x="178" y="388" width="480" height="11" rx="4" fill="#93C5FD" opacity="0.55"/>
+
+  <!-- Séparateur -->
+  <rect x="178" y="415" width="648" height="2" rx="1" fill="#BFDBFE"/>
+
+  <!-- Actu 2 -->
+  <rect x="178" y="430" width="360" height="18" rx="6" fill="#1E3A8A" opacity="0.8"/>
+  <rect x="556" y="428" width="100" height="22" rx="10" fill="#BFDBFE"/>
+  <rect x="178" y="460" width="648" height="11" rx="4" fill="#93C5FD"/>
+  <rect x="178" y="478" width="570" height="11" rx="4" fill="#93C5FD" opacity="0.75"/>
+  <rect x="178" y="496" width="430" height="11" rx="4" fill="#93C5FD" opacity="0.55"/>
+
+  <!-- Séparateur -->
+  <rect x="178" y="523" width="648" height="2" rx="1" fill="#BFDBFE"/>
+
+  <!-- Actu 3 -->
+  <rect x="178" y="538" width="330" height="18" rx="6" fill="#1E3A8A" opacity="0.8"/>
+  <rect x="526" y="536" width="100" height="22" rx="10" fill="#BFDBFE"/>
+  <rect x="178" y="568" width="648" height="11" rx="4" fill="#93C5FD"/>
+  <rect x="178" y="586" width="540" height="11" rx="4" fill="#93C5FD" opacity="0.75"/>
+  <rect x="178" y="604" width="390" height="11" rx="4" fill="#93C5FD" opacity="0.55"/>
+
+  <!-- Pied du panneau -->
+  <rect x="480" y="720" width="64" height="70" rx="10" fill="#1E3A8A"/>
+  <rect x="350" y="780" width="324" height="36" rx="18" fill="#1E3A8A"/>
+
+  <!-- Chapeau de diplômé -->
+  <g transform="translate(512, 864)">
+    <rect x="-64" y="-14" width="128" height="20" rx="5" fill="#FCD34D"/>
+    <polygon points="0,-54 -76,-14 76,-14" fill="#FCD34D"/>
+    <line x1="52" y1="-14" x2="68" y2="18" stroke="#FCD34D" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="68" cy="22" r="11" fill="#FCD34D"/>
+  </g>
+
+</svg>

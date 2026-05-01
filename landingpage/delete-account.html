@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scolactu — Suppression de compte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F7F2E8;--cream2:#EDE7D9;--ink:#1A1F2E;--ink2:#3D4559;--ink3:#7A8299;
+  --gold:#C8973A;--blue:#1C3461;--blue2:#2A4F96;--red:#C04A2A;--green:#2A6B42;
+  --line:rgba(26,31,46,0.1);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(247,242,232,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}
+.nav-icon{width:30px;height:30px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+.nav-name{font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;}
+@media(max-width:768px){nav{padding:0 20px;}}
+
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:100px 20px 60px;}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:48px;max-width:520px;width:100%;box-shadow:0 8px 40px rgba(26,31,46,0.06);}
+
+.icon-wrap{width:56px;height:56px;background:#FFF0ED;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:24px;}
+.icon-wrap svg{width:28px;height:28px;color:var(--red);}
+
+h1{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.subtitle{font-size:.95rem;color:var(--ink3);line-height:1.6;margin-bottom:32px;}
+
+.info-box{background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:16px 20px;margin-bottom:28px;}
+.info-box p{font-size:.85rem;color:var(--ink2);line-height:1.6;}
+.info-box p+p{margin-top:8px;}
+.info-box strong{color:var(--ink);}
+
+label{display:block;font-size:.82rem;font-weight:600;color:var(--ink2);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px;}
+input[type="email"],input[type="password"]{width:100%;padding:12px 16px;border:1.5px solid var(--line);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.95rem;color:var(--ink);background:var(--cream);transition:border-color .2s;outline:none;}
+input[type="email"]:focus,input[type="password"]:focus{border-color:var(--blue2);}
+.field{margin-bottom:20px;}
+
+.confirm-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:28px;}
+.confirm-row input[type="checkbox"]{width:18px;height:18px;margin-top:2px;accent-color:var(--red);flex-shrink:0;cursor:pointer;}
+.confirm-row label{font-size:.88rem;color:var(--ink2);text-transform:none;letter-spacing:0;font-weight:400;}
+
+.btn-delete{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:'Outfit',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;transition:opacity .2s;}
+.btn-delete:hover{opacity:.88;}
+.btn-delete:disabled{opacity:.45;cursor:not-allowed;}
+
+.error-msg{display:none;background:#FFF0ED;border:1px solid rgba(192,74,42,0.2);border-radius:10px;padding:12px 16px;font-size:.88rem;color:var(--red);margin-bottom:20px;}
+
+.success{display:none;text-align:center;padding:24px 0;}
+.success .check{width:56px;height:56px;background:#E8F5EE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.success .check svg{width:28px;height:28px;color:var(--green);}
+.success h2{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:8px;}
+.success p{font-size:.9rem;color:var(--ink3);line-height:1.6;}
+
+footer{text-align:center;padding:24px;font-size:.8rem;color:var(--ink3);}
+footer a{color:var(--blue2);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">
+    <div class="nav-icon">📚</div>
+    <span class="nav-name">Scolactu</span>
+  </a>
+</nav>
+
+<main>
+  <div class="card">
+    <div id="form-view">
+      <div class="icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      </div>
+      <h1>Supprimer mon compte</h1>
+      <p class="subtitle">Connectez-vous pour confirmer la suppression définitive de votre compte et de toutes les données associées.</p>
+
+      <div class="info-box">
+        <p><strong>Ce qui sera supprimé :</strong> votre adresse e-mail, votre mot de passe, et toutes les données de votre établissement (diaporamas, absences, cantine, événements…).</p>
+        <p>Cette action est <strong>irréversible</strong> et immédiate.</p>
+      </div>
+
+      <form id="delete-form">
+        <div class="field">
+          <label for="email">Adresse e-mail</label>
+          <input type="email" id="email" placeholder="votre@email.com" required>
+        </div>
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" placeholder="••••••••" required>
+        </div>
+        <div class="confirm-row">
+          <input type="checkbox" id="confirm" required>
+          <label for="confirm">Je comprends que cette action est <strong>irréversible</strong> et que toutes mes données seront définitivement supprimées.</label>
+        </div>
+        <div class="error-msg" id="error-msg"></div>
+        <button type="submit" class="btn-delete" id="submit-btn">Supprimer définitivement mon compte</button>
+      </form>
+    </div>
+
+    <div class="success" id="success-view">
+      <div class="check">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>Compte supprimé</h2>
+      <p>Votre compte et toutes vos données ont été définitivement supprimés.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <a href="/">Retour à l'accueil</a> &nbsp;·&nbsp; © 2025 Scolactu
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://jsbhfainrsrghktqyanz.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzYmhmYWlucnNyZ2hrdHF5YW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNjgxODksImV4cCI6MjA4ODg0NDE4OX0.-OpTPIKV5cT1sJu3iMZt4jDmP4Hme4keFnlia54-pvc';
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+document.getElementById('delete-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('submit-btn');
+  const errorEl = document.getElementById('error-msg');
+
+  errorEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Connexion en cours…';
+
+  const { error: signInError } = await client.auth.signInWithPassword({ email, password });
+  if (signInError) {
+    errorEl.textContent = 'Email ou mot de passe incorrect.';
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Supprimer définitivement mon compte';
+    return;
+  }
+
+  btn.textContent = 'Suppression en cours…';
+
+  const { error: deleteError } = await client.rpc('delete_user');
+  if (deleteError) {
+    errorEl.textContent = 'Une erreur est survenue : ' + deleteError.message;
+    errorEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Supprimer définitivement mon compte';
+    return;
+  }
+
+  await client.auth.signOut();
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('success-view').style.display = 'block';
+});
+</script>
+</body>
+</html>

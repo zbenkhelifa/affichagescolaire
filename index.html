@@ -1,0 +1,4135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau d'Affichage Scolaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --blue: #1a3a6b;
+    --accent: #e8b84b;
+    --accent2: #e05c3a;
+    --light: #f0f4ff;
+    --text: #dce8ff;
+    --glass: rgba(255,255,255,0.06);
+    --glass2: rgba(255,255,255,0.12);
+
+    /* Thème actif (modifié par JS) */
+    --bg-body:        #0a1628;
+    --bg-topbar-from: rgba(26,58,107,0.9);
+    --bg-topbar-to:   rgba(10,22,40,0.95);
+    --bg-grad-1:      #162a5a;
+    --bg-grad-2:      #0a1628;
+    --bg-grad-3:      #1a2e4a;
+    --bg-info-panel:  rgba(10,22,40,0.6);
+    --bg-card:        rgba(255,255,255,0.06);
+    --border-card:    rgba(232,184,75,0.12);
+    --text-main:      #dce8ff;
+    --text-muted:     rgba(220,232,255,0.5);
+  }
+
+  /* ── THÈME CLAIR ── */
+  body.theme-light {
+    --bg-body:        #f0f4fa;
+    --bg-topbar-from: rgba(255,255,255,0.97);
+    --bg-topbar-to:   rgba(240,244,250,0.97);
+    --bg-grad-1:      #d4e4fa;
+    --bg-grad-2:      #f0f4fa;
+    --bg-grad-3:      #c8d8f0;
+    --bg-info-panel:  rgba(240,244,250,0.92);
+    --bg-card:        rgba(255,255,255,0.85);
+    --border-card:    rgba(100,120,180,0.15);
+    --text-main:      #1a2a4a;
+    --text-muted:     rgba(40,60,100,0.55);
+    --glass:          rgba(0,0,0,0.04);
+    --glass2:         rgba(0,0,0,0.08);
+    --navy:           #f0f4fa;
+    --text:           #1a2a4a;
+  }
+
+  /* ── THÈME COULEUR CUSTOM ── */
+  body.theme-custom {
+    --bg-body:        var(--custom-color);
+    --bg-grad-1:      var(--custom-color);
+    --bg-grad-2:      var(--custom-dark);
+    --bg-grad-3:      var(--custom-mid);
+    --bg-topbar-from: var(--custom-dark-alpha);
+    --bg-topbar-to:   var(--custom-darker-alpha);
+    --bg-info-panel:  var(--custom-dark-alpha);
+    --bg-card:        rgba(255,255,255,0.08);
+    --border-card:    rgba(255,255,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-body);
+    color: var(--text-main, var(--text));
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ===== DISPLAY MODE ===== */
+  #display-mode {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Background */
+  .bg-gradient {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 20%, var(--bg-grad-1) 0%, var(--bg-grad-2) 60%),
+                radial-gradient(ellipse at 80% 80%, var(--bg-grad-3) 0%, transparent 60%);
+    z-index: 0;
+    transition: background 0.5s ease;
+  }
+
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(232,184,75,0.04) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(232,184,75,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    z-index: 0;
+  }
+
+  /* TOP BAR */
+  .top-bar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 50px;
+    background: linear-gradient(135deg, var(--bg-topbar-from) 0%, var(--bg-topbar-to) 100%);
+    border-bottom: 3px solid var(--accent);
+    backdrop-filter: blur(20px);
+    flex-shrink: 0;
+    transition: background 0.5s ease;
+  }
+
+  .school-info {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .school-logo {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 34px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: white;
+    box-shadow: 0 4px 20px rgba(232,184,75,0.4);
+    flex-shrink: 0;
+  }
+
+  .school-details h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.02em;
+  }
+
+  .school-details p {
+    font-size: 1rem;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-top: 3px;
+  }
+
+  .top-center {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .date-badge, .time-badge {
+    background: var(--glass2);
+    border: 1px solid rgba(232,184,75,0.2);
+    border-radius: 14px;
+    padding: 12px 26px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+  }
+
+  .time-badge .time-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+
+  .time-badge .time-label, .date-badge .date-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,0.5);
+    margin-top: 3px;
+  }
+
+  .date-badge .date-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    text-transform: capitalize;
+  }
+
+  .top-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-dot {
+    width: 14px;
+    height: 14px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .live-text {
+    font-size: 1rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #4ade80;
+    font-weight: 600;
+  }
+
+  .admin-btn-top {
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(220,232,255,0.6);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .admin-btn-top:hover {
+    background: var(--glass2);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* MAIN CONTENT */
+  .main-content {
+    position: relative;
+    z-index: 5;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 520px;
+    gap: 0;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* SLIDESHOW */
+  .slideshow-section {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slideshow-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1s ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .slide.active { opacity: 1; }
+
+  .slide-img {
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slide-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(10,22,40,0.85) 100%);
+  }
+
+  .slide-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 30px 40px;
+  }
+
+  .slide-caption h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+    line-height: 1.1;
+  }
+
+  .slide-caption p {
+    font-size: 1.4rem;
+    color: rgba(255,255,255,0.8);
+    margin-top: 8px;
+  }
+
+  .slide-indicator {
+    position: absolute;
+    bottom: 12px;
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .dot.active {
+    background: var(--accent);
+    transform: scale(1.3);
+  }
+
+  .slide-placeholder {
+    flex: 1;
+    background: var(--glass);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: rgba(220,232,255,0.3);
+  }
+
+  .slide-placeholder .icon { font-size: 4rem; }
+
+  /* RIGHT PANEL - INFO CARDS */
+  .info-panel {
+    background: var(--bg-info-panel);
+    border-left: 1px solid rgba(232,184,75,0.15);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: background 0.5s ease;
+  }
+
+  .info-section {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .info-scroll-track { display: contents; }
+
+  /* Outer carousel: one card fills the full panel height at a time */
+  #cards-outer-vp {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  #cards-outer-track {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+  }
+
+  .info-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    /* height set in JS to match viewport */
+  }
+
+  .card-body {
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    flex: 1;
+  }
+
+  .card-inner-track {
+    display: flex;
+    flex-direction: column;
+    will-change: transform;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .card-icon.conseils { background: rgba(232,184,75,0.2); }
+  .card-icon.absences { background: rgba(224,92,58,0.2); }
+  .card-icon.sorties { background: rgba(74,222,128,0.2); }
+  .card-icon.evenements { background: rgba(147,112,219,0.2); }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .card-title.conseils { color: var(--accent); }
+  .card-title.absences { color: var(--accent2); }
+  .card-title.sorties { color: #4ade80; }
+  .card-title.evenements { color: #a78bfa; }
+
+  .conseil-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 1.1rem;
+  }
+
+  .conseil-row:last-child { border-bottom: none; }
+
+  .conseil-classe {
+    font-weight: 700;
+    color: white;
+    font-size: 1.15rem;
+  }
+
+  .conseil-date {
+    color: var(--accent);
+    font-size: 1rem;
+  }
+
+  .conseil-salle {
+    color: rgba(220,232,255,0.5);
+    font-size: 0.9rem;
+  }
+
+  /* ── Séparateurs de section dans le panneau info ── */
+  .info-sep {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px 8px;
+    border-bottom: 1px solid rgba(232,184,75,0.12);
+    background: rgba(0,0,0,0.15); flex-shrink: 0;
+  }
+  .info-sep-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem; flex-shrink: 0;
+  }
+  .info-sep-absences   .info-sep-icon { background: rgba(224,92,58,0.2); }
+  .info-sep-conseils   .info-sep-icon { background: rgba(232,184,75,0.2); }
+  .info-sep-sorties    .info-sep-icon { background: rgba(74,222,128,0.2); }
+  .info-sep-evenements .info-sep-icon { background: rgba(147,112,219,0.2); }
+  .info-sep-cantine    .info-sep-icon { background: rgba(34,197,94,0.2); }
+  .info-sep-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .info-sep-absences   .info-sep-title { color: var(--accent2); }
+  .info-sep-conseils   .info-sep-title { color: var(--accent); }
+  .info-sep-sorties    .info-sep-title { color: #4ade80; }
+  .info-sep-evenements .info-sep-title { color: #a78bfa; }
+  .info-sep-cantine    .info-sep-title { color: #4ade80; }
+
+  .absent-pills-wrap {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+
+  .absent-pill {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(224,92,58,0.08);
+    border: 1px solid rgba(224,92,58,0.15);
+    border-radius: 12px;
+    padding: 10px 14px;
+  }
+
+  .absent-pill .absent-name { font-weight: 700; color: white; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .absent-pill .absent-info { color: rgba(220,232,255,0.55); font-size: 0.88rem; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .event-row {
+    display: flex;
+    gap: 14px;
+    padding: 13px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    align-items: flex-start;
+  }
+
+  .event-row:last-child { border-bottom: none; }
+
+  .event-date-tag {
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.25);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #4ade80;
+    text-align: center;
+    min-width: 58px;
+    flex-shrink: 0;
+  }
+
+  .event-row .event-info { flex: 1; }
+  .event-row .event-title { font-size: 1.1rem; font-weight: 700; color: white; }
+  .event-row .event-sub { font-size: 0.95rem; color: rgba(220,232,255,0.55); margin-top: 3px; }
+
+  .evt-date-tag {
+    background: rgba(167,139,250,0.15);
+    border: 1px solid rgba(167,139,250,0.25);
+    border-radius: 10px;
+    padding: 6px 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #a78bfa;
+    text-align: center;
+    min-width: 58px;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: rgba(220,232,255,0.25);
+    font-size: 1.1rem;
+  }
+
+  /* NEWS TICKER */
+  .ticker-bar {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(135deg, var(--accent) 0%, #d4a03a 100%);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .ticker-label {
+    background: var(--navy);
+    color: var(--accent);
+    padding: 0 28px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+  }
+
+  .ticker-wrap {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ticker-track {
+    display: inline-flex;    /* shrink-wrap au contenu */
+    white-space: nowrap;
+    will-change: transform;
+    animation: ticker-scroll 30s linear infinite;
+  }
+
+  .ticker-track:hover { animation-play-state: paused; }
+
+  @keyframes ticker-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 40px;
+    color: var(--navy);
+    font-size: 1.2rem;
+    font-weight: 700;
+  }
+
+  .ticker-bullet {
+    width: 8px;
+    height: 8px;
+    background: var(--navy);
+    border-radius: 50%;
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  /* ===== ADMIN MODE ===== */
+  #admin-mode {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    background: #080f1e;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #admin-mode.visible { display: flex; }
+
+  .admin-topbar {
+    background: linear-gradient(135deg, #101f3a, #0a1628);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .admin-topbar h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .admin-topbar h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .admin-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #d4a03a);
+    color: var(--navy);
+  }
+
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,184,75,0.4); }
+
+  .btn-danger {
+    background: rgba(224,92,58,0.15);
+    border: 1px solid rgba(224,92,58,0.3);
+    color: var(--accent2);
+  }
+
+  .btn-danger:hover { background: rgba(224,92,58,0.25); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(220,232,255,0.2);
+    color: rgba(220,232,255,0.7);
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+  .btn-green {
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #4ade80;
+  }
+
+  .btn-green:hover { background: rgba(74,222,128,0.25); }
+
+  /* ADMIN LAYOUT */
+  .admin-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .admin-nav {
+    background: #0d1929;
+    border-right: 1px solid rgba(232,184,75,0.1);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .nav-section-label {
+    padding: 12px 20px 6px;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,0.3);
+    font-weight: 600;
+  }
+
+  .nav-item {
+    margin: 0 12px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(220,232,255,0.55);
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+
+  .nav-item:hover { background: var(--glass); color: var(--text); }
+
+  .nav-item.active {
+    background: rgba(232,184,75,0.12);
+    color: var(--accent);
+    border: 1px solid rgba(232,184,75,0.2);
+  }
+
+  .nav-item .nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+
+  /* ADMIN PANELS */
+  .admin-panels {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 28px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232,184,75,0.2) transparent;
+  }
+
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .home-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px 20px;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.15s;
+    text-align: center;
+  }
+  .home-card:hover {
+    background: rgba(255,255,255,0.09);
+    border-color: rgba(232,184,75,0.35);
+    transform: translateY(-2px);
+  }
+  .home-card-icon { font-size: 2rem; margin-bottom: 10px; }
+  .home-card-label { font-size: 0.9rem; font-weight: 600; color: white; margin-bottom: 6px; }
+  .home-card-count { font-size: 1.4rem; font-weight: 800; color: #e8b84b; font-family: 'Syne', sans-serif; }
+
+  .panel-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+  }
+
+  .panel-header p {
+    font-size: 0.85rem;
+    color: rgba(220,232,255,0.45);
+    margin-top: 4px;
+  }
+
+  /* FORMS */
+  .form-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(232,184,75,0.1);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .form-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(232,184,75,0.1);
+  }
+
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-group label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,0.5);
+  }
+
+  .form-group input, .form-group select, .form-group textarea {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(220,232,255,0.12);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.08);
+  }
+
+  .form-group select option { background: #0d1929; color: white; }
+
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .form-actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+
+  /* DATA TABLES */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(220,232,255,0.4);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(232,184,75,0.1);
+  }
+
+  .data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(220,232,255,0.85);
+    vertical-align: middle;
+  }
+
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(232,184,75,0.04); }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .badge-conseil { background: rgba(232,184,75,0.15); color: var(--accent); border: 1px solid rgba(232,184,75,0.25); }
+  .badge-absence { background: rgba(224,92,58,0.15); color: var(--accent2); border: 1px solid rgba(224,92,58,0.25); }
+  .badge-sortie { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+  .badge-evenement { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.25); }
+
+  .delete-btn {
+    background: rgba(224,92,58,0.1);
+    border: 1px solid rgba(224,92,58,0.2);
+    color: var(--accent2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .delete-btn:hover { background: rgba(224,92,58,0.25); }
+
+  .action-btns { display: flex; gap: 6px; align-items: center; }
+
+  .edit-btn {
+    background: rgba(74,144,226,0.15);
+    border: 1px solid rgba(74,144,226,0.3);
+    color: #60a5fa;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.15s;
+  }
+  .edit-btn:hover { background: rgba(74,144,226,0.3); }
+
+  .save-btn {
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #4ade80;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .save-btn:hover { background: rgba(74,222,128,0.3); }
+  .save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .cancel-btn {
+    background: rgba(220,50,50,0.12);
+    border: 1px solid rgba(220,50,50,0.25);
+    color: #f87171;
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+  }
+  .cancel-btn:hover { background: rgba(220,50,50,0.25); }
+
+  .inline-input {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(232,184,75,0.3);
+    border-radius: 6px;
+    padding: 4px 8px;
+    color: white;
+    font-size: 0.82rem;
+    width: 100%;
+    min-width: 60px;
+    outline: none;
+    transition: border-color 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .inline-input:focus { border-color: rgba(232,184,75,0.7); }
+  .inline-input option { background: #0d1929; }
+
+  /* Sélecteur de taille de police */
+  .fs-btns { display: flex; gap: 4px; }
+  .fs-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(220,232,255,0.5);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .fs-btn:hover { background: rgba(232,184,75,0.15); color: var(--accent); border-color: rgba(232,184,75,0.3); }
+  .fs-btn.active { background: rgba(232,184,75,0.2); color: var(--accent); border-color: rgba(232,184,75,0.5); }
+
+  /* LOGIN */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,10,20,0.98);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(20px);
+  }
+
+  .login-card {
+    background: linear-gradient(135deg, rgba(26,58,107,0.4), rgba(10,22,40,0.8));
+    border: 1px solid rgba(232,184,75,0.2);
+    border-radius: 24px;
+    padding: 48px;
+    width: 380px;
+    text-align: center;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  }
+
+  .login-logo {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: white;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 32px rgba(232,184,75,0.35);
+  }
+
+  .login-card h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 6px;
+  }
+
+  .login-card p {
+    font-size: 0.85rem;
+    color: rgba(220,232,255,0.4);
+    margin-bottom: 32px;
+  }
+
+  .login-input {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(220,232,255,0.15);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    outline: none;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+    text-align: center;
+    letter-spacing: 0.08em;
+  }
+
+  .login-input:focus { border-color: var(--accent); }
+
+  .login-btn {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, var(--accent), #d4a03a);
+    border: none;
+    border-radius: 10px;
+    color: var(--navy);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+    letter-spacing: 0.04em;
+  }
+
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,184,75,0.4); }
+
+  .login-error {
+    color: var(--accent2);
+    font-size: 0.8rem;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .login-success {
+    color: #4ade80;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .login-tabs {
+    display: flex;
+    border-bottom: 1px solid rgba(220,232,255,0.1);
+    margin: 0 -48px 28px;
+  }
+
+  .login-tab {
+    flex: 1;
+    padding: 12px 6px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: rgba(220,232,255,0.3);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.2s;
+  }
+
+  .login-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: rgba(232,184,75,0.05);
+  }
+
+  .login-tab.tab-code.active {
+    color: #4ade80;
+    border-bottom-color: #4ade80;
+    background: rgba(74,222,128,0.05);
+  }
+
+  .login-info-box {
+    background: rgba(232,184,75,0.07);
+    border: 1px solid rgba(232,184,75,0.15);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    color: rgba(220,232,255,0.55);
+    text-align: left;
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+
+  .login-info-box--green {
+    background: rgba(74,222,128,0.07);
+    border-color: rgba(74,222,128,0.15);
+  }
+
+  .login-input--code {
+    font-family: 'DM Sans', monospace;
+    letter-spacing: 0.3em;
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .login-btn--green {
+    background: linear-gradient(135deg, #4ade80, #22c55e);
+  }
+
+  .login-btn--green:hover {
+    box-shadow: 0 8px 24px rgba(74,222,128,0.4);
+  }
+
+  /* SETTINGS */
+  .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* SLIDESHOW ADMIN */
+  .slides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-top: 16px; }
+
+  .slide-thumb {
+    background: var(--glass);
+    border: 1px solid rgba(232,184,75,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 16/9;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .slide-thumb:hover { transform: scale(1.02); }
+  .slide-thumb .thumb-img { width: 100%; height: 100%; object-fit: cover; }
+
+  .slide-thumb .thumb-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10,22,40,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .slide-thumb:hover .thumb-overlay { opacity: 1; }
+
+  .color-slide {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .color-slide .slide-emoji { font-size: 2rem; }
+  .color-slide .slide-title-prev { font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; color: white; }
+  .color-slide .slide-sub-prev { font-size: 0.7rem; color: rgba(255,255,255,0.6); }
+
+  .toast {
+    position: fixed;
+    bottom: 60px;
+    right: 24px;
+    background: linear-gradient(135deg, #1e3a5f, #0f2140);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: 12px;
+    padding: 14px 20px;
+    color: #4ade80;
+    font-size: 0.85rem;
+    font-weight: 600;
+    z-index: 9999;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* SCROLLABLE PANEL ANIMATION */
+  .auto-scroll {
+    animation: none;
+  }
+
+  .info-section.scrolling {
+    animation: autoScroll 20s linear infinite;
+  }
+
+  @keyframes autoScroll {
+    0%, 10% { transform: translateY(0); }
+    90%, 100% { transform: translateY(calc(-100% + 100vh)); }
+  }
+
+  /* ============================================================
+     RESPONSIVE — Tablette (≤ 900px) & Mobile (≤ 600px)
+     ============================================================ */
+
+  /* ── Burger button (admin mobile) ── */
+  .burger-btn {
+    display: none;
+    background: var(--glass);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(220,232,255,0.8);
+    border-radius: 8px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .burger-btn:hover { background: var(--glass2); }
+
+  /* Overlay nav mobile */
+  .nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 199;
+    backdrop-filter: blur(4px);
+  }
+  .nav-overlay.open { display: block; }
+
+  /* ── TABLETTE ≤ 900px ── */
+  @media (max-width: 900px) {
+
+    /* --- Display mode --- */
+    .top-bar {
+      padding: 14px 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .school-logo { width: 52px; height: 52px; font-size: 24px; border-radius: 12px; }
+    .school-details h1 { font-size: 1.25rem; }
+    .school-details p { font-size: 0.78rem; }
+    .time-badge .time-val { font-size: 2rem; }
+    .date-badge .date-val { font-size: 1rem; }
+    .date-badge, .time-badge { padding: 8px 16px; }
+    .live-text { display: none; }
+
+    .main-content {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+    }
+    .info-panel {
+      border-left: none;
+      border-top: 1px solid rgba(232,184,75,0.15);
+      max-height: 240px;
+    }
+    #cards-outer-vp { height: 100% !important; }
+
+    .ticker-bar { height: 44px; }
+    .ticker-label { font-size: 0.75rem; padding: 0 10px; }
+
+    /* --- Admin mode --- */
+    .admin-topbar { padding: 12px 16px; }
+    .admin-topbar h1 { font-size: 1rem; }
+    .admin-topbar h1 span { display: none; }
+    .btn-sm { padding: 7px 10px; font-size: 0.78rem; }
+
+    .admin-body { grid-template-columns: 1fr; position: relative; }
+
+    .admin-nav {
+      position: fixed;
+      top: 0; left: -260px;
+      width: 240px; height: 100vh;
+      z-index: 200;
+      transition: left 0.28s cubic-bezier(.4,0,.2,1);
+      padding-top: 60px;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    .admin-nav.open { left: 0; }
+
+    .burger-btn { display: block; }
+
+    .admin-panels { padding: 16px; }
+
+    .panel-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .panel-header > div:last-child { width: 100%; }
+
+    .font-size-picker { flex-wrap: wrap; }
+
+    .form-grid { grid-template-columns: 1fr; }
+
+    /* Tables → scroll horizontal */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 10px;
+    }
+    .data-table { min-width: 520px; }
+
+    /* Home cards */
+    #panel-home > div[style*="grid"] {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+      gap: 12px !important;
+    }
+    .home-card { padding: 18px 12px; }
+    .home-card-icon { font-size: 1.5rem; }
+
+    /* Slide thumb grid */
+    #slides-admin-grid { grid-template-columns: 1fr 1fr !important; }
+  }
+
+  /* ── MOBILE ≤ 600px ── */
+  @media (max-width: 600px) {
+
+    /* --- Display mode --- */
+    .top-bar {
+      padding: 10px 12px;
+      gap: 8px;
+    }
+    .school-logo { width: 40px; height: 40px; font-size: 18px; border-radius: 10px; }
+    .school-info { gap: 10px; }
+    .school-details h1 { font-size: 1rem; }
+    .school-details p { font-size: 0.68rem; margin-top: 1px; }
+
+    .top-center { gap: 8px; }
+    .date-badge { display: none; }
+    .time-badge .time-val { font-size: 1.6rem; }
+    .time-badge .time-label { display: none; }
+    .time-badge { padding: 6px 12px; border-radius: 10px; }
+
+    .admin-btn-top { padding: 7px 12px; font-size: 0.78rem; }
+
+    .main-content { grid-template-rows: 1fr 180px; }
+    .info-panel { max-height: 180px; }
+
+    .ticker-bar { height: 36px; }
+    .ticker-label { display: none; }
+    .ticker-item { font-size: 0.78rem !important; }
+
+    .card-header { padding: 10px 14px; }
+    .card-title { font-size: 0.85rem; }
+    .card-icon { width: 28px; height: 28px; font-size: 0.85rem; }
+
+    .conseil-row { padding: 10px 12px; }
+    .conseil-classe { font-size: 0.95rem !important; }
+    .absent-pill { padding: 6px 12px; margin: 3px; }
+    .event-row { padding: 10px 12px; gap: 10px; }
+
+    /* --- Admin mode --- */
+    .admin-topbar { padding: 10px 12px; gap: 8px; flex-wrap: wrap; }
+    .admin-topbar h1 { font-size: 0.9rem; }
+    .admin-actions { gap: 6px; }
+    .admin-actions .btn-outline { display: none; } /* cache "retour" — remplacé par le ← dans topbar */
+    .burger-btn { padding: 7px 10px; font-size: 1rem; }
+
+    .admin-panels { padding: 12px; }
+
+    .panel-header h2 { font-size: 1.1rem; }
+    .panel-header p { font-size: 0.78rem; }
+    .fs-btns { gap: 3px; }
+    .fs-btn { padding: 3px 7px; font-size: 0.68rem; }
+
+    .form-card { padding: 16px; }
+    .form-card h3 { font-size: 0.9rem; }
+    .form-actions { flex-wrap: wrap; }
+    .form-actions .btn { flex: 1; text-align: center; }
+
+    .data-table { min-width: 480px; }
+    .data-table th, .data-table td { padding: 8px 10px; }
+
+    .home-card { padding: 14px 10px; }
+    .home-card-icon { font-size: 1.3rem; margin-bottom: 6px; }
+    .home-card-label { font-size: 0.78rem; }
+    .home-card-count { font-size: 1.1rem; }
+
+    /* Diaporama admin */
+    #slides-admin-grid { grid-template-columns: 1fr !important; }
+
+    /* Login */
+    .login-box { padding: 32px 20px; width: calc(100vw - 32px); }
+    .login-logo { font-size: 2.5rem; }
+    .login-box h2 { font-size: 1.3rem; }
+
+    /* Font size picker */
+    .font-size-picker span { display: none; }
+  }
+
+  /* ── Sélecteur de thème ── */
+  .theme-card {
+    cursor: pointer; border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.08);
+    overflow: hidden; transition: border-color 0.2s, transform 0.15s;
+    width: 110px; flex-shrink: 0;
+  }
+  .theme-card:hover { transform: translateY(-2px); border-color: rgba(232,184,75,0.4); }
+  .theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(232,184,75,0.25); }
+  .theme-preview { height: 72px; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+  .tp-bar    { height: 16px; flex-shrink: 0; }
+  .tp-body   { flex: 1; display: flex; gap: 2px; padding: 3px; }
+  .tp-slide  { flex: 1.5; border-radius: 3px; }
+  .tp-panel  { flex: 1; border-radius: 3px; }
+  .tp-ticker { height: 10px; flex-shrink: 0; }
+  .theme-label { background: rgba(0,0,0,0.35); padding: 5px 8px; font-size: 0.72rem; font-weight: 600; text-align: center; color: white; }
+
+  .color-preset {
+    width: 28px; height: 28px; border-radius: 8px;
+    cursor: pointer; border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s; flex-shrink: 0;
+  }
+  .color-preset:hover { transform: scale(1.2); border-color: rgba(232,184,75,0.6); }
+  .color-preset.active { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(232,184,75,0.3); }
+
+  /* Thème clair : textes sombres lisibles */
+  body.theme-light .school-details h1     { color: #1a2a4a !important; }
+  body.theme-light .school-details p      { color: var(--accent) !important; }
+  body.theme-light .live-text             { color: #2a7a2a !important; }
+  body.theme-light .live-dot              { background: #2a7a2a !important; }
+  body.theme-light .admin-btn-top         { color: #3a4a6a !important; border-color: rgba(0,0,0,0.15) !important; }
+  body.theme-light .date-badge,
+  body.theme-light .time-badge            { background: rgba(0,0,0,0.07) !important; border-color: rgba(0,0,0,0.12) !important; }
+  body.theme-light .time-badge .time-val  { color: var(--accent) !important; }
+  body.theme-light .date-badge .date-val  { color: #1a2a4a !important; }
+  body.theme-light .time-badge .time-label,
+  body.theme-light .date-badge .date-label { color: rgba(0,0,0,0.4) !important; }
+  body.theme-light .card-header           { border-bottom-color: rgba(0,0,0,0.07) !important; }
+  body.theme-light .conseil-row           { border-bottom-color: rgba(0,0,0,0.05) !important; color: #1a2a4a !important; }
+  body.theme-light .conseil-classe        { color: #1a2a4a !important; }
+  body.theme-light .event-row             { border-bottom-color: rgba(0,0,0,0.05) !important; }
+  body.theme-light .absent-name           { color: #1a2a4a !important; }
+  body.theme-light .ticker-bar            { background: rgba(232,184,75,0.12) !important; border-top-color: rgba(232,184,75,0.25) !important; }
+  body.theme-light .bg-grid               { opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🏫</div>
+    <h2>TableauScolaire</h2>
+    <p>Affichage numérique scolaire</p>
+
+    <div class="login-tabs">
+      <button class="login-tab active"    onclick="switchTab('login')"    id="tab-btn-login">Connexion</button>
+      <button class="login-tab"           onclick="switchTab('register')" id="tab-btn-register">Créer un compte</button>
+      <button class="login-tab tab-code"  onclick="switchTab('code')"     id="tab-btn-code">📺 Affichage</button>
+    </div>
+
+    <!-- Connexion -->
+    <div id="tab-login">
+      <input type="email"    class="login-input" id="login-user" placeholder="Email" autocomplete="email">
+      <input type="password" class="login-input" id="login-pass" placeholder="Mot de passe">
+      <button class="login-btn" onclick="doLogin()">Se connecter</button>
+    </div>
+
+    <!-- Inscription -->
+    <div id="tab-register" style="display:none">
+      <div class="login-info-box">
+        Créez un compte pour votre établissement. Chaque compte possède ses propres données entièrement séparées.
+      </div>
+      <input type="email"    class="login-input" id="reg-email"   placeholder="Email de l'établissement" autocomplete="email">
+      <input type="password" class="login-input" id="reg-pass"    placeholder="Mot de passe (min. 6 caractères)">
+      <input type="password" class="login-input" id="reg-confirm" placeholder="Confirmer le mot de passe">
+      <button class="login-btn" onclick="doRegister()">Créer mon établissement</button>
+    </div>
+
+    <!-- Code d'affichage -->
+    <div id="tab-code" style="display:none">
+      <div class="login-info-box login-info-box--green">
+        Entrez le code fourni par votre établissement pour accéder à l'affichage en lecture seule.
+      </div>
+      <input type="text" class="login-input login-input--code" id="code-input"
+             placeholder="Ex : A1B2C3" maxlength="8"
+             oninput="this.value=this.value.toUpperCase()">
+      <button class="login-btn login-btn--green" onclick="doDisplayCode()">Accéder à l'affichage</button>
+    </div>
+
+    <p class="login-error"   id="login-error"></p>
+    <p class="login-success" id="login-success"></p>
+  </div>
+</div>
+
+<!-- DISPLAY MODE -->
+<div id="display-mode" style="display:none">
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="school-info">
+      <div class="school-logo" id="disp-logo">🏫</div>
+      <div class="school-details">
+        <h1 id="disp-school-name">Collège Jean Moulin</h1>
+        <p id="disp-school-subtitle">Établissement public — Éducation Nationale</p>
+      </div>
+    </div>
+    <div class="top-center">
+      <div class="date-badge">
+        <div class="date-label">Date</div>
+        <div class="date-val" id="display-date">—</div>
+      </div>
+      <div class="time-badge">
+        <div class="time-val" id="display-time">00:00</div>
+        <div class="time-label">Heure</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="live-dot"></div>
+      <span class="live-text">En direct</span>
+      <button class="admin-btn-top" id="display-admin-btn" onclick="openAdmin()">⚙ Admin</button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+
+    <!-- SLIDESHOW -->
+    <div class="slideshow-section">
+      <div class="slideshow-container" id="slideshow">
+        <div class="slide active" id="slide-placeholder">
+          <div class="slide-placeholder">
+            <div class="icon">🖼</div>
+            <p style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem;">Aucune image configurée</p>
+            <p style="font-size:0.85rem;">Ajoutez des diapositives depuis le panneau d'administration</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-indicator" id="slide-dots"></div>
+    </div>
+
+    <!-- INFO PANEL -->
+    <div class="info-panel">
+      <div class="info-section" id="info-section">
+        <div id="cards-outer-vp">
+          <div id="cards-outer-track"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker-bar">
+    <div class="ticker-label">📢 Infos</div>
+    <div class="ticker-wrap">
+      <div class="ticker-track" id="ticker-track">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN MODE -->
+<div id="admin-mode">
+  <div class="admin-topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="burger-btn" onclick="toggleNav()" id="burger-btn">☰</button>
+      <h1>⚙ <span>Admin</span> — Tableau d'Affichage</h1>
+    </div>
+    <div class="admin-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeAdmin()">← Retour à l'affichage</button>
+      <button class="btn btn-danger btn-sm" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+
+  <!-- Overlay nav mobile -->
+  <div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+
+  <div class="admin-body">
+    <!-- LEFT NAV -->
+    <div class="admin-nav" id="admin-nav">
+      <div class="nav-item nav-home active" onclick="showPanel('home', this)">
+        <span class="nav-icon">⌂</span> Accueil
+      </div>
+      <div class="nav-section-label">Contenu</div>
+      <div class="nav-item" onclick="showPanel('conseils', this)">
+        <span class="nav-icon">📅</span> Conseils de classe
+      </div>
+      <div class="nav-item" onclick="showPanel('absences', this)">
+        <span class="nav-icon">🚫</span> Profs absents
+      </div>
+      <div class="nav-item" onclick="showPanel('sorties', this)">
+        <span class="nav-icon">🚌</span> Sorties scolaires
+      </div>
+      <div class="nav-item" onclick="showPanel('evenements', this)">
+        <span class="nav-icon">🎉</span> Autres événements
+      </div>
+      <div class="nav-item" onclick="showPanel('cantine', this)">
+        <span class="nav-icon">🍽</span> Menu cantine
+      </div>
+      <div class="nav-section-label">Affichage</div>
+      <div class="nav-item" onclick="showPanel('diaporama', this)">
+        <span class="nav-icon">🖼</span> Diaporama
+      </div>
+      <div class="nav-item" onclick="showPanel('bandeau', this)">
+        <span class="nav-icon">📢</span> Bandeau d'infos
+      </div>
+      <div class="nav-section-label">Réglages</div>
+      <div class="nav-item" onclick="showPanel('settings', this)">
+        <span class="nav-icon">⚙</span> Établissement
+      </div>
+    </div>
+
+    <!-- PANELS -->
+    <div class="admin-panels">
+
+      <!-- HOME -->
+      <div class="admin-panel active" id="panel-home">
+        <div class="panel-header">
+          <div>
+            <h2>⌂ Tableau de bord</h2>
+            <p>Sélectionnez une section pour gérer le contenu affiché</p>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:8px;">
+          <div class="home-card" onclick="showPanel('conseils', null)">
+            <div class="home-card-icon">📅</div>
+            <div class="home-card-label">Conseils de classe</div>
+            <div class="home-card-count" id="home-count-conseils">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('absences', null)">
+            <div class="home-card-icon">🚫</div>
+            <div class="home-card-label">Profs absents</div>
+            <div class="home-card-count" id="home-count-absences">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('sorties', null)">
+            <div class="home-card-icon">🚌</div>
+            <div class="home-card-label">Sorties scolaires</div>
+            <div class="home-card-count" id="home-count-sorties">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('evenements', null)">
+            <div class="home-card-icon">🎉</div>
+            <div class="home-card-label">Événements</div>
+            <div class="home-card-count" id="home-count-evenements">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('cantine', null)">
+            <div class="home-card-icon">🍽</div>
+            <div class="home-card-label">Menu cantine</div>
+            <div class="home-card-count" id="home-count-cantine">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('diaporama', null)">
+            <div class="home-card-icon">🖼</div>
+            <div class="home-card-label">Diaporama</div>
+            <div class="home-card-count" id="home-count-slides">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('bandeau', null)">
+            <div class="home-card-icon">📢</div>
+            <div class="home-card-label">Bandeau</div>
+            <div class="home-card-count" id="home-count-ticker">—</div>
+          </div>
+          <div class="home-card" onclick="showPanel('settings', null)">
+            <div class="home-card-icon">⚙</div>
+            <div class="home-card-label">Établissement</div>
+            <div class="home-card-count" style="color:rgba(220,232,255,0.3);">Réglages</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONSEILS DE CLASSE -->
+      <div class="admin-panel" id="panel-conseils">
+        <div class="panel-header">
+          <div>
+            <h2>📅 Conseils de classe</h2>
+            <p>Planification des conseils de classe par trimestre</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Taille texte</span>
+            <div class="fs-btns" id="fs-conseils">
+              <button class="fs-btn" data-size="0.85" onclick="setFontSize('conseils','0.85',this)">S</button>
+              <button class="fs-btn" data-size="1" onclick="setFontSize('conseils','1',this)">M</button>
+              <button class="fs-btn active" data-size="1.2" onclick="setFontSize('conseils','1.2',this)">L</button>
+              <button class="fs-btn" data-size="1.5" onclick="setFontSize('conseils','1.5',this)">XL</button>
+            </div>
+          </div>
+            <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Ajouter un conseil de classe</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Classe</label>
+              <input type="text" id="cc-classe" placeholder="ex: 6ème A">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="cc-date">
+            </div>
+            <div class="form-group">
+              <label>Heure</label>
+              <input type="time" id="cc-heure" value="17:00">
+            </div>
+            <div class="form-group">
+              <label>Salle</label>
+              <input type="text" id="cc-salle" placeholder="ex: Salle des profs">
+            </div>
+            <div class="form-group">
+              <label>Trimestre</label>
+              <select id="cc-trim">
+                <option value="T1">1er Trimestre</option>
+                <option value="T2">2ème Trimestre</option>
+                <option value="T3">3ème Trimestre</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addConseil()">➕ Ajouter</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Liste des conseils de classe</h3>
+          <div class="table-wrap"><table class="data-table">
+            <thead>
+              <tr>
+                <th>Classe</th><th>Date</th><th>Heure</th><th>Salle</th><th>Trim.</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="conseils-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- ABSENCES -->
+      <div class="admin-panel" id="panel-absences">
+        <div class="panel-header">
+          <div>
+            <h2>🚫 Professeurs absents</h2>
+            <p>Signaler les absences du jour ou à venir</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Taille texte</span>
+            <div class="fs-btns" id="fs-absences">
+              <button class="fs-btn" data-size="0.85" onclick="setFontSize('absences','0.85',this)">S</button>
+              <button class="fs-btn" data-size="1" onclick="setFontSize('absences','1',this)">M</button>
+              <button class="fs-btn active" data-size="1.2" onclick="setFontSize('absences','1.2',this)">L</button>
+              <button class="fs-btn" data-size="1.5" onclick="setFontSize('absences','1.5',this)">XL</button>
+            </div>
+          </div>
+            <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Signaler une absence</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nom du professeur</label>
+              <input type="text" id="abs-nom" placeholder="ex: M. Dupont">
+            </div>
+            <div class="form-group">
+              <label>Matière</label>
+              <input type="text" id="abs-matiere" placeholder="ex: Mathématiques">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="abs-date">
+            </div>
+            <div class="form-group">
+              <label>Classe(s) concernée(s)</label>
+              <input type="text" id="abs-classes" placeholder="ex: 5ème B, 4ème A">
+            </div>
+            <div class="form-group">
+              <label>Remplacement</label>
+              <select id="abs-remplacement">
+                <option value="Non renseigné">Non renseigné</option>
+                <option value="Cours maintenu">Cours maintenu</option>
+                <option value="Classe non prise en charge">Classe non prise en charge</option>
+                <option value="Travail en autonomie">Travail en autonomie</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addAbsence()">➕ Ajouter</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Liste des absences</h3>
+          <div class="table-wrap"><table class="data-table">
+            <thead>
+              <tr><th>Professeur</th><th>Matière</th><th>Date</th><th>Classes</th><th>Remplacement</th><th>Action</th></tr>
+            </thead>
+            <tbody id="absences-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- SORTIES -->
+      <div class="admin-panel" id="panel-sorties">
+        <div class="panel-header">
+          <div>
+            <h2>🚌 Sorties scolaires</h2>
+            <p>Voyages et sorties pédagogiques</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Taille texte</span>
+            <div class="fs-btns" id="fs-sorties">
+              <button class="fs-btn" data-size="0.85" onclick="setFontSize('sorties','0.85',this)">S</button>
+              <button class="fs-btn" data-size="1" onclick="setFontSize('sorties','1',this)">M</button>
+              <button class="fs-btn active" data-size="1.2" onclick="setFontSize('sorties','1.2',this)">L</button>
+              <button class="fs-btn" data-size="1.5" onclick="setFontSize('sorties','1.5',this)">XL</button>
+            </div>
+          </div>
+            <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Ajouter une sortie</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Intitulé de la sortie</label>
+              <input type="text" id="sort-titre" placeholder="ex: Visite du Louvre">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="sort-date">
+            </div>
+            <div class="form-group">
+              <label>Classe(s)</label>
+              <input type="text" id="sort-classes" placeholder="ex: 3ème A et B">
+            </div>
+            <div class="form-group">
+              <label>Destination / Lieu</label>
+              <input type="text" id="sort-lieu" placeholder="ex: Paris — Musée du Louvre">
+            </div>
+            <div class="form-group">
+              <label>Accompagnateur</label>
+              <input type="text" id="sort-acc" placeholder="ex: Mme Martin">
+            </div>
+            <div class="form-group">
+              <label>Heure de départ</label>
+              <input type="time" id="sort-heure">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addSortie()">➕ Ajouter</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Liste des sorties</h3>
+          <div class="table-wrap"><table class="data-table">
+            <thead>
+              <tr><th>Sortie</th><th>Date</th><th>Classes</th><th>Lieu</th><th>Départ</th><th>Action</th></tr>
+            </thead>
+            <tbody id="sorties-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- EVENEMENTS -->
+      <div class="admin-panel" id="panel-evenements">
+        <div class="panel-header">
+          <div>
+            <h2>🎉 Autres événements</h2>
+            <p>Manifestations, conférences, spectacles…</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Taille texte</span>
+            <div class="fs-btns" id="fs-evenements">
+              <button class="fs-btn" data-size="0.85" onclick="setFontSize('evenements','0.85',this)">S</button>
+              <button class="fs-btn" data-size="1" onclick="setFontSize('evenements','1',this)">M</button>
+              <button class="fs-btn active" data-size="1.2" onclick="setFontSize('evenements','1.2',this)">L</button>
+              <button class="fs-btn" data-size="1.5" onclick="setFontSize('evenements','1.5',this)">XL</button>
+            </div>
+          </div>
+            <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Ajouter un événement</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Titre de l'événement</label>
+              <input type="text" id="evt-titre" placeholder="ex: Journée portes ouvertes">
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="evt-date">
+            </div>
+            <div class="form-group">
+              <label>Heure</label>
+              <input type="time" id="evt-heure">
+            </div>
+            <div class="form-group">
+              <label>Lieu</label>
+              <input type="text" id="evt-lieu" placeholder="ex: Gymnase">
+            </div>
+            <div class="form-group" style="grid-column: 1/-1;">
+              <label>Description</label>
+              <textarea id="evt-desc" placeholder="Détails de l'événement..."></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addEvenement()">➕ Ajouter</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Liste des événements</h3>
+          <div class="table-wrap"><table class="data-table">
+            <thead>
+              <tr><th>Événement</th><th>Date</th><th>Heure</th><th>Lieu</th><th>Description</th><th>Action</th></tr>
+            </thead>
+            <tbody id="evenements-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- MENU CANTINE -->
+      <div class="admin-panel" id="panel-cantine">
+        <div class="panel-header">
+          <div>
+            <h2>🍽 Menu cantine</h2>
+            <p>Menus de la semaine affichés sur l'écran</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Taille texte</span>
+            <div class="fs-btns" id="fs-cantine">
+              <button class="fs-btn" data-size="0.85" onclick="setFontSize('cantine','0.85',this)">S</button>
+              <button class="fs-btn" data-size="1" onclick="setFontSize('cantine','1',this)">M</button>
+              <button class="fs-btn active" data-size="1.2" onclick="setFontSize('cantine','1.2',this)">L</button>
+              <button class="fs-btn" data-size="1.5" onclick="setFontSize('cantine','1.5',this)">XL</button>
+            </div>
+          </div>
+            <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Ajouter un menu</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="cant-date">
+            </div>
+            <div class="form-group">
+              <label>Entrée</label>
+              <input type="text" id="cant-entree" placeholder="ex: Salade de tomates">
+            </div>
+            <div class="form-group">
+              <label>Plat principal</label>
+              <input type="text" id="cant-plat" placeholder="ex: Poulet rôti, haricots verts">
+            </div>
+            <div class="form-group">
+              <label>Fromage / Laitage</label>
+              <input type="text" id="cant-fromage" placeholder="ex: Yaourt nature">
+            </div>
+            <div class="form-group">
+              <label>Dessert</label>
+              <input type="text" id="cant-dessert" placeholder="ex: Tarte aux pommes">
+            </div>
+            <div class="form-group">
+              <label>Accompagnement</label>
+              <input type="text" id="cant-accomp" placeholder="ex: Riz, pâtes…">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addCantine()">➕ Ajouter</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Menus enregistrés</h3>
+          <div class="table-wrap"><table class="data-table">
+            <thead>
+              <tr><th>Date</th><th>Entrée</th><th>Plat</th><th>Accomp.</th><th>Fromage</th><th>Dessert</th><th>Action</th></tr>
+            </thead>
+            <tbody id="cantine-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- DIAPORAMA -->
+      <div class="admin-panel" id="panel-diaporama">
+        <div class="panel-header">
+          <div>
+            <h2>🖼 Diaporama</h2>
+            <p>Gérer les diapositives affichées à l'écran</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+        </div>
+        <div class="form-card">
+          <h3>Ajouter une diapositive</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Titre</label>
+              <input type="text" id="slide-title-input" placeholder="ex: Bienvenue au collège">
+            </div>
+            <div class="form-group">
+              <label>Sous-titre (optionnel)</label>
+              <input type="text" id="slide-sub-input" placeholder="ex: Année scolaire 2024-2025">
+            </div>
+          </div>
+
+          <!-- IMAGE UPLOAD ZONE -->
+          <div style="margin-top:14px;">
+            <label style="font-size:0.78rem;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:rgba(220,232,255,0.5);display:block;margin-bottom:8px;">Image (optionnelle)</label>
+            <div id="drop-zone" onclick="document.getElementById('slide-file-input').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)"
+              style="border:2px dashed rgba(232,184,75,0.25);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.03);position:relative;">
+              <div id="drop-placeholder">
+                <div style="font-size:2.2rem;margin-bottom:8px;">📁</div>
+                <p style="color:rgba(220,232,255,0.6);font-size:0.88rem;font-weight:500;">Cliquez ou glissez une image ici</p>
+                <p style="color:rgba(220,232,255,0.3);font-size:0.76rem;margin-top:4px;">JPG, PNG, GIF, WebP — max 5 Mo</p>
+              </div>
+              <div id="drop-preview" style="display:none;position:relative;">
+                <img id="preview-img" style="max-height:160px;max-width:100%;border-radius:8px;object-fit:cover;" alt="Aperçu">
+                <button onclick="clearImagePreview(event)" style="position:absolute;top:-8px;right:-8px;background:#e05c3a;border:none;border-radius:50%;width:24px;height:24px;color:white;cursor:pointer;font-size:14px;line-height:24px;text-align:center;">×</button>
+              </div>
+              <input type="file" id="slide-file-input" accept="image/*" style="display:none" onchange="handleFileSelect(event)">
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top:14px;">
+            <div class="form-group">
+              <label>Couleur de fond (si pas d'image)</label>
+              <select id="slide-color-input">
+                <option value="linear-gradient(135deg, #1a3a6b, #0a1628)">Bleu marine</option>
+                <option value="linear-gradient(135deg, #2d1b5e, #0d0a1e)">Violet nuit</option>
+                <option value="linear-gradient(135deg, #1a5c3a, #0a2818)">Vert forêt</option>
+                <option value="linear-gradient(135deg, #5c1a1a, #200a0a)">Rouge bordeaux</option>
+                <option value="linear-gradient(135deg, #4a3000, #1a1000)">Or profond</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Emoji / Icône (si pas d'image)</label>
+              <input type="text" id="slide-emoji-input" placeholder="ex: 🎓" maxlength="4" value="🏫">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addSlide()">➕ Ajouter la diapositive</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Diapositives actuelles</h3>
+          <div class="slides-grid" id="slides-admin-grid"></div>
+        </div>
+      </div>
+
+      <!-- BANDEAU -->
+      <div class="admin-panel" id="panel-bandeau">
+        <div class="panel-header">
+          <div>
+            <h2>📢 Bandeau d'informations</h2>
+            <p>Messages défilants en bas de l'écran</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Taille texte</span>
+              <div class="fs-btns" id="fs-ticker">
+                <button class="fs-btn" data-size="0.85" onclick="setFontSize('ticker','0.85',this)">S</button>
+                <button class="fs-btn" data-size="1" onclick="setFontSize('ticker','1',this)">M</button>
+                <button class="fs-btn active" data-size="1.2" onclick="setFontSize('ticker','1.2',this)">L</button>
+                <button class="fs-btn" data-size="1.5" onclick="setFontSize('ticker','1.5',this)">XL</button>
+              </div>
+            </div>
+            <div class="font-size-picker" style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:0.75rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Vitesse</span>
+              <div class="fs-btns" id="speed-ticker">
+                <button class="fs-btn" data-speed="0.4" onclick="setTickerSpeed('0.4',this)">🐢</button>
+                <button class="fs-btn active" data-speed="1" onclick="setTickerSpeed('1',this)">▶</button>
+                <button class="fs-btn" data-speed="2" onclick="setTickerSpeed('2',this)">⏩</button>
+                <button class="fs-btn" data-speed="3.5" onclick="setTickerSpeed('3.5',this)">🚀</button>
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Ajouter un message</h3>
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:1/-1;">
+              <label>Message</label>
+              <input type="text" id="ticker-msg-input" placeholder="ex: La cantine est fermée vendredi prochain — Réunion parents d'élèves le 15/03 à 18h30">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="addTickerMsg()">➕ Ajouter</button>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3>Messages actuels</h3>
+          <div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Message</th><th>Action</th></tr></thead>
+            <tbody id="ticker-tbody"></tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="admin-panel" id="panel-settings">
+        <div class="panel-header">
+          <div>
+            <h2>🏫 Établissement</h2>
+            <p>Identité, logo et informations de l'établissement</p>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="goHome()">⌂ Accueil</button>
+        </div>
+
+        <!-- APERÇU EN-TÊTE -->
+        <div class="form-card" style="margin-bottom:20px;">
+          <h3>Aperçu de l'en-tête</h3>
+          <div id="settings-preview" style="
+            background: linear-gradient(135deg, rgba(26,58,107,0.9) 0%, rgba(10,22,40,0.95) 100%);
+            border: 1px solid rgba(232,184,75,0.2);
+            border-radius: 12px;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 12px;
+          ">
+            <div id="prev-logo" style="width:52px;height:52px;background:linear-gradient(135deg,#e8b84b,#c8940a);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden;">
+              <span id="prev-logo-emoji">🏫</span>
+              <img id="prev-logo-img" style="display:none;width:100%;height:100%;object-fit:cover;" alt="">
+            </div>
+            <div>
+              <div id="prev-name" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;color:white;">Collège Jean Moulin</div>
+              <div id="prev-subtitle" style="font-size:0.78rem;color:var(--accent);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;">Établissement public — Éducation Nationale</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- IDENTITÉ -->
+        <div class="form-card">
+          <h3>🏷 Identité</h3>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label>Nom de l'établissement</label>
+              <input type="text" id="set-name" placeholder="ex: Collège Jean Moulin" oninput="livePreview()">
+            </div>
+            <div class="form-group">
+              <label>Sous-titre / type</label>
+              <input type="text" id="set-subtitle" placeholder="ex: Établissement public — Éducation Nationale" oninput="livePreview()">
+            </div>
+          </div>
+        </div>
+
+        <!-- LOGO -->
+        <div class="form-card">
+          <h3>🖼 Logo</h3>
+          <div style="display:flex;align-items:flex-start;gap:24px;flex-wrap:wrap;">
+            <!-- Aperçu logo -->
+            <div id="logo-preview-box" style="width:80px;height:80px;background:linear-gradient(135deg,#e8b84b,#c8940a);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:38px;flex-shrink:0;overflow:hidden;box-shadow:0 4px 20px rgba(232,184,75,0.3);">
+              <span id="logo-preview-emoji">🏫</span>
+              <img id="logo-preview-img" style="display:none;width:100%;height:100%;object-fit:cover;" alt="logo">
+            </div>
+            <div style="flex:1;min-width:240px;display:flex;flex-direction:column;gap:12px;">
+              <!-- Upload image -->
+              <div id="logo-drop-zone" onclick="document.getElementById('logo-file-input').click()"
+                style="border:2px dashed rgba(232,184,75,0.3);border-radius:10px;padding:14px 18px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);"
+                ondragover="event.preventDefault();this.style.borderColor='rgba(232,184,75,0.7)'"
+                ondragleave="this.style.borderColor='rgba(232,184,75,0.3)'"
+                ondrop="event.preventDefault();this.style.borderColor='rgba(232,184,75,0.3)';loadLogoFile(event.dataTransfer.files[0])">
+                <span style="font-size:1.5rem;">📁</span>
+                <div>
+                  <div style="font-size:0.85rem;color:rgba(220,232,255,0.8);font-weight:600;">Cliquez ou glissez une image</div>
+                  <div style="font-size:0.72rem;color:rgba(220,232,255,0.3);margin-top:2px;">JPG, PNG, SVG, WebP — max 2 Mo</div>
+                </div>
+                <input type="file" id="logo-file-input" accept="image/*" style="display:none" onchange="loadLogoFile(this.files[0])">
+              </div>
+              <!-- OU emoji -->
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:0.82rem;color:rgba(220,232,255,0.4);white-space:nowrap;">Ou emoji :</span>
+                <input type="text" id="set-logo" placeholder="🏫" maxlength="4" style="width:80px;" oninput="previewLogoEmoji(this.value)">
+                <button class="btn btn-sm" style="background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);color:#f87171;" onclick="clearLogo()">✕ Effacer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFOS ÉTABLISSEMENT -->
+        <div class="form-card">
+          <h3>📋 Informations de l'établissement</h3>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;">
+            <div class="form-group">
+              <label>Adresse</label>
+              <input type="text" id="set-adresse" placeholder="ex: 12 rue Victor Hugo, 75001 Paris">
+            </div>
+            <div class="form-group">
+              <label>Téléphone</label>
+              <input type="text" id="set-telephone" placeholder="ex: 01 23 45 67 89">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" id="set-email" placeholder="ex: contact@college-jeanmoulin.fr">
+            </div>
+            <div class="form-group">
+              <label>Site web</label>
+              <input type="text" id="set-site" placeholder="ex: www.college-jeanmoulin.fr">
+            </div>
+            <div class="form-group">
+              <label>Académie</label>
+              <input type="text" id="set-academie" placeholder="ex: Académie de Versailles">
+            </div>
+            <div class="form-group">
+              <label>Code UAI / RNE</label>
+              <input type="text" id="set-uai" placeholder="ex: 0750123A">
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label>Message d'accueil (affiché sur l'écran principal)</label>
+              <textarea id="set-message" rows="3" placeholder="ex: Bienvenue au Collège Jean Moulin — Bonne journée à tous !"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- THÈME D'AFFICHAGE -->
+        <div class="form-card">
+          <h3>🎨 Thème d'affichage</h3>
+          <p style="font-size:0.82rem;color:rgba(220,232,255,0.4);margin-bottom:18px;">Personnalisez l'apparence de l'écran d'affichage.</p>
+
+          <!-- Sélecteur thème -->
+          <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+            <div class="theme-card" id="theme-card-dark" onclick="selectTheme('dark')" title="Thème sombre">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#162a5a,#0a1628);">
+                <div class="tp-bar" style="background:rgba(26,58,107,0.9);"></div>
+                <div class="tp-body">
+                  <div class="tp-slide" style="background:linear-gradient(135deg,#1a3a6b,#0a1628);"></div>
+                  <div class="tp-panel" style="background:rgba(10,22,40,0.6);"></div>
+                </div>
+                <div class="tp-ticker" style="background:rgba(232,184,75,0.15);"></div>
+              </div>
+              <div class="theme-label">🌙 Sombre</div>
+            </div>
+            <div class="theme-card" id="theme-card-light" onclick="selectTheme('light')" title="Thème clair">
+              <div class="theme-preview" style="background:linear-gradient(135deg,#d4e4fa,#f0f4fa);">
+                <div class="tp-bar" style="background:rgba(255,255,255,0.97);border-bottom:2px solid #e8b84b;"></div>
+                <div class="tp-body">
+                  <div class="tp-slide" style="background:linear-gradient(135deg,#4a7abd,#2a5090);"></div>
+                  <div class="tp-panel" style="background:rgba(240,244,250,0.92);"></div>
+                </div>
+                <div class="tp-ticker" style="background:rgba(232,184,75,0.2);"></div>
+              </div>
+              <div class="theme-label">☀️ Clair</div>
+            </div>
+            <div class="theme-card" id="theme-card-custom" onclick="selectTheme('custom')" title="Couleur personnalisée">
+              <div class="theme-preview" id="theme-preview-custom" style="background:linear-gradient(135deg,#1a4a2a,#0a1e10);">
+                <div class="tp-bar" style="background:rgba(0,0,0,0.4);"></div>
+                <div class="tp-body">
+                  <div class="tp-slide" style="background:rgba(0,0,0,0.3);"></div>
+                  <div class="tp-panel" style="background:rgba(0,0,0,0.2);"></div>
+                </div>
+                <div class="tp-ticker" style="background:rgba(232,184,75,0.15);"></div>
+              </div>
+              <div class="theme-label">🎨 Couleur</div>
+            </div>
+          </div>
+
+          <!-- Sélecteur couleur (visible seulement si custom) -->
+          <div id="custom-color-row" style="display:none;align-items:center;gap:16px;flex-wrap:wrap;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 18px;">
+            <span style="font-size:0.85rem;color:rgba(220,232,255,0.6);font-weight:500;">Couleur de fond :</span>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+              <div class="color-preset" style="background:#1a4a2a;" onclick="applyCustomColor('#1a4a2a')" title="Forêt"></div>
+              <div class="color-preset" style="background:#4a1a2a;" onclick="applyCustomColor('#4a1a2a')" title="Bordeaux"></div>
+              <div class="color-preset" style="background:#1a2a4a;" onclick="applyCustomColor('#1a2a4a')" title="Marine"></div>
+              <div class="color-preset" style="background:#2a1a4a;" onclick="applyCustomColor('#2a1a4a')" title="Violet"></div>
+              <div class="color-preset" style="background:#3a2a1a;" onclick="applyCustomColor('#3a2a1a')" title="Bois"></div>
+              <div class="color-preset" style="background:#1a3a3a;" onclick="applyCustomColor('#1a3a3a')" title="Teal"></div>
+              <div class="color-preset" style="background:#2a2a2a;" onclick="applyCustomColor('#2a2a2a')" title="Anthracite"></div>
+              <label style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:rgba(220,232,255,0.5);cursor:pointer;">
+                <input type="color" id="set-custom-color" value="#1a4a2a"
+                  style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;background:none;padding:2px;"
+                  oninput="applyCustomColor(this.value)">
+                Personnalisée
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- SÉCURITÉ -->
+        <div class="form-card">
+
+        <div class="form-actions" style="padding:0 0 32px;">
+          <button class="btn btn-primary" onclick="saveSettings()" style="padding:12px 36px;font-size:1rem;">💾 Enregistrer tous les paramètres</button>
+        </div>
+      </div>
+
+    </div><!-- end admin-panels -->
+  </div><!-- end admin-body -->
+</div><!-- end admin-mode -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG — remplacez par vos propres valeurs
+// Tableau de bord Supabase > Settings > API
+// ============================================================
+const SUPABASE_URL  = 'https://jsbhfainrsrghktqyanz.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpzYmhmYWlucnNyZ2hrdHF5YW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMyNjgxODksImV4cCI6MjA4ODg0NDE4OX0.-OpTPIKV5cT1sJu3iMZt4jDmP4Hme4keFnlia54-pvc';
+
+let _accessToken    = localStorage.getItem('sb_token') || null;
+let _userId         = localStorage.getItem('sb_uid')   || null;
+let _displayMode    = false;   // true = accès élève via code (pas de bouton admin)
+let _displaySchoolId = null;   // school_id pour le mode affichage code
+
+// ============================================================
+// CLIENT SUPABASE LÉGER (fetch direct, pas de lib externe)
+// ============================================================
+const sb = {
+  async select(table, options = {}) {
+    let url = `${SUPABASE_URL}/rest/v1/${table}?`;
+    if (options.order)  url += `order=${options.order}&`;
+    if (options.filter) url += `${options.filter}&`;
+    url += 'select=*';
+    const r = await fetch(url, { headers: sbHeaders() });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async insert(table, body) {
+    const payload = _userId ? { school_id: _userId, ...body } : body;
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: { ...sbHeaders(), 'Prefer': 'return=representation' },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async update(table, match, body) {
+    const params = Object.entries(match).map(([k,v]) => `${k}=eq.${encodeURIComponent(v)}`).join('&');
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+      method: 'PATCH',
+      headers: { ...sbHeaders(), 'Prefer': 'return=representation' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async upsert(table, body, on_conflict = null) {
+    const payload = _userId ? { school_id: _userId, ...body } : body;
+    let url = `${SUPABASE_URL}/rest/v1/${table}`;
+    if (on_conflict) url += `?on_conflict=${encodeURIComponent(on_conflict)}`;
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { ...sbHeaders(), 'Prefer': 'return=representation,resolution=merge-duplicates' },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async delete(table, match) {
+    const params = Object.entries(match).map(([k,v]) => `${k}=eq.${encodeURIComponent(v)}`).join('&');
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+      method: 'DELETE',
+      headers: sbHeaders()
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return true;
+  }
+};
+
+function sbHeaders() {
+  return {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${_accessToken || SUPABASE_KEY}`,
+    'Content-Type': 'application/json'
+  };
+}
+
+// ============================================================
+// DATA (cache local en mémoire)
+// ============================================================
+let data = {
+  school:     { id: null, name: 'Chargement…', subtitle: '', logo: '🏫',
+                adresse: '', telephone: '', email: '', site: '', academie: '', uai: '', message: '' },
+  config:     {},  // clés: font_size_conseils, font_size_absences, etc.
+  conseils:   [],
+  absences:   [],
+  sorties:    [],
+  evenements: [],
+  cantine:    [],
+  slides:     [],
+  ticker:     []
+};
+
+// Charge toutes les données depuis Supabase
+async function loadAllData() {
+  const sid = _userId || _displaySchoolId;
+  const filter = sid ? `school_id=eq.${sid}` : null;
+  const safeSelect = async (table, opts) => {
+    try { return await sb.select(table, { ...opts, filter }); }
+    catch(e) { console.warn(`Table "${table}" inaccessible:`, e.message || e); return []; }
+  };
+
+  const [school, conseils, absences, sorties, evenements, cantine, slides, ticker, config] = await Promise.all([
+    safeSelect('school_settings'),
+    safeSelect('conseils',        { order: 'date.asc' }),
+    safeSelect('absences',        { order: 'date.asc' }),
+    safeSelect('sorties',         { order: 'date.asc' }),
+    safeSelect('evenements',      { order: 'date.asc' }),
+    safeSelect('cantine',         { order: 'date.asc' }),
+    safeSelect('slides',          { order: 'ordre.asc,created_at.asc' }),
+    safeSelect('ticker_messages', { order: 'ordre.asc,created_at.asc' }),
+    safeSelect('affichage_config')
+  ]);
+
+  if (school.length > 0) {
+    data.school = {
+      id:        school[0].id,
+      name:      school[0].name,
+      subtitle:  school[0].subtitle,
+      logo:      school[0].logo,
+      adresse:   school[0].adresse   || '',
+      telephone: school[0].telephone || '',
+      email:     school[0].email     || '',
+      site:      school[0].site      || '',
+      academie:  school[0].academie  || '',
+      uai:       school[0].uai       || '',
+      message:   school[0].message   || ''
+    };
+  }
+
+  data.conseils   = conseils.map(r => ({ id: r.id, classe: r.classe, date: r.date, heure: r.heure ? r.heure.slice(0,5) : '', salle: r.salle || '', trim: r.trimestre }));
+  data.absences   = absences.map(r => ({ id: r.id, nom: r.nom, matiere: r.matiere || '', date: r.date, classes: r.classes || '', remplacement: r.remplacement }));
+  data.sorties    = sorties.map(r => ({ id: r.id, titre: r.titre, date: r.date, classes: r.classes || '', lieu: r.lieu || '', acc: r.accompagnateur || '', heure: r.heure_depart ? r.heure_depart.slice(0,5) : '' }));
+  data.evenements = evenements.map(r => ({ id: r.id, titre: r.titre, date: r.date, heure: r.heure ? r.heure.slice(0,5) : '', lieu: r.lieu || '', desc: r.description || '' }));
+  data.cantine    = cantine.map(r => ({ id: r.id, date: r.date, entree: r.entree || '', plat: r.plat || '', accomp: r.accompagnement || '', fromage: r.fromage || '', dessert: r.dessert || '' }));
+  data.slides     = slides.map(r => ({ id: r.id, title: r.titre, sub: r.sous_titre || '', img: r.image_data || '', color: r.couleur, emoji: r.emoji }));
+  data.ticker     = ticker.map(r => ({ id: r.id, message: r.message }));
+  data.config = {};
+  config.forEach(r => { data.config[r.cle] = r.valeur; });
+}
+
+// Rafraîchit les données toutes les 60 secondes
+setInterval(async () => {
+  await loadAllData();
+  renderAll_Display();
+}, 60000);
+
+// ============================================================
+// AUTH
+// ============================================================
+let isLoggedIn = false;
+let loginPending = false;
+
+// ── Gestion des onglets du login ──────────────────────────
+function switchTab(tab) {
+  ['login','register','code'].forEach(t => {
+    document.getElementById('tab-' + t).style.display      = t === tab ? '' : 'none';
+    document.getElementById('tab-btn-' + t).classList.toggle('active', t === tab);
+  });
+  document.getElementById('login-error').style.display   = 'none';
+  document.getElementById('login-success').style.display = 'none';
+}
+
+// ── Inscription ────────────────────────────────────────────
+async function doRegister() {
+  const email   = document.getElementById('reg-email').value.trim();
+  const pass    = document.getElementById('reg-pass').value;
+  const confirm = document.getElementById('reg-confirm').value;
+  const err     = document.getElementById('login-error');
+  const ok      = document.getElementById('login-success');
+  const btn     = document.querySelector('#tab-register .login-btn');
+
+  if (pass !== confirm) { showLoginError('Les mots de passe ne correspondent pas.'); return; }
+  if (pass.length < 6)  { showLoginError('Le mot de passe doit contenir au moins 6 caractères.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Création…';
+  try {
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const json = await r.json();
+    if (!r.ok) throw new Error(json.msg || json.error_description || 'Erreur lors de la création du compte.');
+    if (json.access_token) {
+      // Confirmation email désactivée → connecté directement
+      _accessToken = json.access_token;
+      _userId      = json.user.id;
+      localStorage.setItem('sb_token', _accessToken);
+      localStorage.setItem('sb_uid',   _userId);
+      isLoggedIn = true;
+      await loadAllData();
+      if (!data.school.id) {
+        await sb.upsert('school_settings', { name: 'Mon Établissement', subtitle: '', logo: '🏫' }, 'school_id');
+        await loadAllData();
+      }
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('display-mode').style.display = 'flex';
+      renderAll_Display();
+    } else {
+      // Confirmation email activée
+      ok.textContent = 'Inscription réussie ! Vérifiez votre email puis connectez-vous.';
+      ok.style.display = 'block';
+      switchTab('login');
+    }
+  } catch(e) {
+    showLoginError(e.message || 'Erreur lors de la création du compte.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Créer mon établissement';
+  }
+}
+
+// ── Code d'affichage élèves ────────────────────────────────
+async function doDisplayCode() {
+  const code = document.getElementById('code-input').value.trim().toUpperCase();
+  const btn  = document.querySelector('#tab-code .login-btn');
+  if (!code) return;
+  btn.disabled = true; btn.textContent = 'Vérification…';
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/school_settings?display_code=eq.${encodeURIComponent(code)}&select=school_id`;
+    const r   = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+    const rows = await r.json();
+    if (!rows || rows.length === 0) throw new Error('Code incorrect. Vérifiez le code fourni par votre établissement.');
+    _displaySchoolId = rows[0].school_id;
+    _displayMode     = true;
+    document.getElementById('display-admin-btn').style.display = 'none';
+    await loadAllData();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('display-mode').style.display = 'flex';
+    renderAll_Display();
+  } catch(e) {
+    showLoginError(e.message || 'Une erreur est survenue. Réessayez.');
+  } finally {
+    btn.disabled = false; btn.textContent = 'Accéder à l\'affichage';
+  }
+}
+
+function showLoginError(msg) {
+  const err = document.getElementById('login-error');
+  err.textContent = msg;
+  err.style.display = 'block';
+  setTimeout(() => err.style.display = 'none', 4000);
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-user').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const btn   = document.querySelector('.login-btn');
+  btn.disabled = true; btn.textContent = 'Connexion…';
+  try {
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    if (!r.ok) throw new Error('Email ou mot de passe incorrect.');
+    const { access_token, user } = await r.json();
+    _accessToken = access_token;
+    _userId      = user.id;
+    localStorage.setItem('sb_token', access_token);
+    localStorage.setItem('sb_uid',   user.id);
+    isLoggedIn = true;
+    await loadAllData();
+    if (!data.school.id) {
+      await sb.upsert('school_settings', { name: 'Mon Établissement', subtitle: '', logo: '🏫' }, 'school_id');
+      await loadAllData();
+    }
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('display-mode').style.display = 'flex';
+    if (loginPending) { loginPending = false; showAdminMode(); }
+    renderAll_Display();
+  } catch(e) {
+    const err = document.getElementById('login-error');
+    err.textContent = e.message || 'Email ou mot de passe incorrect';
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Se connecter';
+  }
+}
+
+function logout() {
+  isLoggedIn = false;
+  _accessToken = null;
+  _userId      = null;
+  localStorage.removeItem('sb_token');
+  localStorage.removeItem('sb_uid');
+  document.getElementById('display-mode').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  closeAdmin();
+}
+
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// Close login with ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('login-screen').style.display !== 'none') {
+      document.getElementById('login-screen').style.display = 'none';
+      loginPending = false;
+    } else if (document.getElementById('admin-mode').classList.contains('visible')) {
+      closeAdmin();
+    }
+  }
+});
+
+// ============================================================
+// DISPLAY / ADMIN SWITCHING
+// ============================================================
+function openAdmin() {
+  if (isLoggedIn) {
+    showAdminMode();
+  } else {
+    loginPending = true;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-user').focus();
+  }
+}
+
+function showAdminMode() {
+  stopAllScrollers();
+  document.getElementById('display-mode').style.display = 'none';
+  document.getElementById('admin-mode').classList.add('visible');
+  renderAll_Admin();
+}
+
+function closeAdmin() {
+  closeNav();
+  document.getElementById('display-mode').style.display = 'flex';
+  document.getElementById('admin-mode').classList.remove('visible');
+  renderAll_Display();
+}
+
+function toggleNav() {
+  const nav = document.getElementById('admin-nav');
+  const overlay = document.getElementById('nav-overlay');
+  const isOpen = nav.classList.contains('open');
+  nav.classList.toggle('open', !isOpen);
+  overlay.classList.toggle('open', !isOpen);
+}
+
+function closeNav() {
+  const nav = document.getElementById('admin-nav');
+  const overlay = document.getElementById('nav-overlay');
+  if (nav) nav.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+}
+
+function goHome() {
+  closeNav();
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-home').classList.add('active');
+  document.querySelector('.nav-home').classList.add('active');
+  updateHomeCounts();
+}
+
+function showPanel(name, el) {
+  const panel = document.getElementById('panel-' + name);
+  if (!panel) { console.error('Panel introuvable : panel-' + name); return; }
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  panel.classList.add('active');
+  const panelsEl = document.querySelector('.admin-panels');
+  if (panelsEl) panelsEl.scrollTop = 0;
+  closeNav();
+  if (el) {
+    el.classList.add('active');
+  } else {
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(`'${name}'`)) {
+        n.classList.add('active');
+      }
+    });
+  }
+  if (name === 'home')     updateHomeCounts();
+  if (name === 'settings') { applySchoolSettings(); initTheme(); }
+}
+
+function updateHomeCounts() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('home-count-conseils').textContent   = data.conseils.filter(c => c.date >= today).length;
+  document.getElementById('home-count-absences').textContent   = data.absences.filter(a => a.date >= today).length;
+  document.getElementById('home-count-sorties').textContent    = data.sorties.filter(s => s.date >= today).length;
+  document.getElementById('home-count-evenements').textContent = data.evenements.filter(e => e.date >= today).length;
+  document.getElementById('home-count-cantine').textContent    = data.cantine.filter(c => c.date >= today).length;
+  document.getElementById('home-count-slides').textContent     = data.slides.length;
+  document.getElementById('home-count-ticker').textContent     = data.ticker.length;
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('display-time').textContent = h + ':' + m;
+
+  const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  document.getElementById('display-date').textContent =
+    days[now.getDay()] + ' ' + now.getDate() + ' ' + months[now.getMonth()];
+}
+
+setInterval(updateClock, 1000);
+updateClock();
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✓ ' + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ============================================================
+// SCHOOL SETTINGS
+// ============================================================
+// logo peut être : emoji (ex: "🏫") ou URL (ex: "https://...") ou data URL
+function applySchoolSettings() {
+  // Écran d'affichage
+  document.getElementById('disp-school-name').textContent     = data.school.name;
+  document.getElementById('disp-school-subtitle').textContent = data.school.subtitle;
+  applyLogoToDisplay(data.school.logo);
+
+  // Champs formulaire
+  const s = data.school;
+  const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  setVal('set-name',      s.name);
+  setVal('set-subtitle',  s.subtitle);
+  setVal('set-adresse',   s.adresse);
+  setVal('set-telephone', s.telephone);
+  setVal('set-email',     s.email);
+  setVal('set-site',      s.site);
+  setVal('set-academie',  s.academie);
+  setVal('set-uai',       s.uai);
+  setVal('set-message',   s.message);
+
+  // Logo
+  applyLogoToPreview(s.logo);
+  if (s.logo && !s.logo.startsWith('http') && !s.logo.startsWith('data:')) {
+    setVal('set-logo', s.logo);
+  } else {
+    setVal('set-logo', '');
+  }
+
+  // Aperçu en-tête dans le panel
+  livePreview();
+}
+
+function livePreview() {
+  const name     = document.getElementById('set-name')?.value     || data.school.name;
+  const subtitle = document.getElementById('set-subtitle')?.value || data.school.subtitle;
+  const pName    = document.getElementById('prev-name');
+  const pSub     = document.getElementById('prev-subtitle');
+  if (pName)    pName.textContent    = name     || 'Nom de l\'établissement';
+  if (pSub)     pSub.textContent     = subtitle || 'Sous-titre';
+
+  // Sync logo aperçu en-tête
+  const emojiEl = document.getElementById('logo-preview-emoji');
+  const imgEl   = document.getElementById('logo-preview-img');
+  const pEmoji  = document.getElementById('prev-logo-emoji');
+  const pImg    = document.getElementById('prev-logo-img');
+  if (!emojiEl || !pEmoji) return;
+  if (imgEl && imgEl.style.display !== 'none' && imgEl.src) {
+    if (pEmoji) pEmoji.style.display = 'none';
+    if (pImg)   { pImg.src = imgEl.src; pImg.style.display = 'block'; }
+  } else {
+    if (pImg)   pImg.style.display = 'none';
+    if (pEmoji) { pEmoji.style.display = 'block'; pEmoji.textContent = emojiEl.textContent || '🏫'; }
+  }
+}
+
+function applyLogoToDisplay(logo) {
+  const el = document.getElementById('disp-logo');
+  if (!logo || (!logo.startsWith('http') && !logo.startsWith('data:'))) {
+    // Emoji ou texte
+    el.textContent = logo || '🏫';
+    el.style.backgroundImage = '';
+  } else {
+    // Image URL
+    el.textContent = '';
+    el.style.cssText += ';background:none;padding:0;';
+    el.innerHTML = `<img src="${logo}" style="width:100%;height:100%;object-fit:contain;border-radius:12px;" onerror="this.parentElement.textContent='🏫'">`;
+  }
+}
+
+function applyLogoToPreview(logo) {
+  const emojiEl = document.getElementById('logo-preview-emoji');
+  const imgEl   = document.getElementById('logo-preview-img');
+  if (!emojiEl || !imgEl) return;
+  if (logo && (logo.startsWith('http') || logo.startsWith('data:'))) {
+    emojiEl.style.display = 'none';
+    imgEl.src = logo;
+    imgEl.style.display = 'block';
+  } else {
+    imgEl.style.display = 'none';
+    emojiEl.style.display = 'block';
+    emojiEl.textContent = logo || '🏫';
+  }
+}
+
+// Upload logo vers Supabase Storage
+let pendingLogoFile = null;
+
+function loadLogoFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) { alert('Veuillez sélectionner une image.'); return; }
+  if (file.size > 2 * 1024 * 1024) { alert('L\'image dépasse 2 Mo.'); return; }
+  pendingLogoFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    applyLogoToPreview(e.target.result);
+    document.getElementById('set-logo').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewLogoEmoji(val) {
+  if (val) {
+    pendingLogoFile = null;
+    applyLogoToPreview(val);
+  }
+}
+
+function clearLogo() {
+  pendingLogoFile = null;
+  document.getElementById('logo-file-input').value = '';
+  applyLogoToPreview(data.school.logo);
+}
+
+async function uploadLogoToStorage(file) {
+  const ext  = file.name.split('.').pop().toLowerCase();
+  const path = `logo-${Date.now()}.${ext}`;
+  const res  = await fetch(`${SUPABASE_URL}/storage/v1/object/slides/${path}`, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': file.type,
+      'x-upsert': 'true'
+    },
+    body: file
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return `${SUPABASE_URL}/storage/v1/object/public/slides/${path}`;
+}
+
+async function saveSettings() {
+  const getVal = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+
+  const btn = document.querySelector('#panel-settings .btn-primary');
+  btn.disabled = true; btn.textContent = '⏳ Enregistrement…';
+
+  try {
+    const payload = {
+      name:      getVal('set-name')      || data.school.name      || 'Mon Établissement',
+      subtitle:  getVal('set-subtitle')  || data.school.subtitle  || '',
+      logo:      data.school.logo        || '🏫',
+      adresse:   getVal('set-adresse'),
+      telephone: getVal('set-telephone'),
+      email:     getVal('set-email'),
+      site:      getVal('set-site'),
+      academie:  getVal('set-academie'),
+      uai:       getVal('set-uai'),
+      message:   getVal('set-message')
+    };
+
+    if (pendingLogoFile) {
+      payload.logo = await uploadLogoToStorage(pendingLogoFile);
+      pendingLogoFile = null;
+    } else if (getVal('set-logo')) {
+      payload.logo = getVal('set-logo');
+    }
+
+    if (data.school.id) payload.id = data.school.id;
+
+    const rows = await sb.upsert('school_settings', payload, 'school_id');
+    if (!rows || rows.length === 0) throw new Error('Aucune ligne retournée par Supabase');
+    const r = rows[0];
+
+    data.school = {
+      id: r.id, name: r.name, subtitle: r.subtitle, logo: r.logo,
+      adresse: r.adresse||'', telephone: r.telephone||'', email: r.email||'',
+      site: r.site||'', academie: r.academie||'', uai: r.uai||'', message: r.message||''
+    };
+
+    applySchoolSettings();
+    showToast('✓ Paramètres enregistrés');
+  } catch(e) {
+    console.error('saveSettings error:', e);
+    alert('Erreur lors de l\'enregistrement :\n' + (e.message || e));
+  } finally {
+    btn.disabled = false; btn.textContent = '💾 Enregistrer tous les paramètres';
+  }
+}
+
+// ============================================================
+// HELPER: format date
+// ============================================================
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const [y, m, d] = dateStr.split('-');
+  return d + '/' + m + '/' + y;
+}
+
+function shortDate(dateStr) {
+  if (!dateStr) return '—';
+  const [, m, d] = dateStr.split('-');
+  return d + '/' + m;
+}
+
+// ============================================================
+// CONSEILS
+// ============================================================
+async function addConseil() {
+  const obj = {
+    classe:    document.getElementById('cc-classe').value.trim(),
+    date:      document.getElementById('cc-date').value,
+    heure:     document.getElementById('cc-heure').value || null,
+    salle:     document.getElementById('cc-salle').value.trim() || null,
+    trimestre: document.getElementById('cc-trim').value
+  };
+  if (!obj.classe || !obj.date) { alert('Veuillez remplir la classe et la date.'); return; }
+  try {
+    const rows = await sb.insert('conseils', obj);
+    const r = rows[0];
+    data.conseils.push({ id: r.id, classe: r.classe, date: r.date, heure: r.heure ? r.heure.slice(0,5) : '', salle: r.salle || '', trim: r.trimestre });
+    data.conseils.sort((a,b) => a.date.localeCompare(b.date));
+    renderConseils_Admin();
+    renderInfoPanel();
+    document.getElementById('cc-classe').value = '';
+    document.getElementById('cc-date').value = '';
+    document.getElementById('cc-salle').value = '';
+    showToast('Conseil de classe ajouté');
+  } catch(e) { showToast('⚠ Erreur sauvegarde'); console.error(e); }
+}
+
+async function deleteConseil(id) {
+  try {
+    await sb.delete('conseils', { id });
+    data.conseils = data.conseils.filter(c => c.id !== id);
+    renderConseils_Admin();
+    renderInfoPanel();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderConseils_Admin() {
+  const tbody = document.getElementById('conseils-tbody');
+  if (!data.conseils.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(220,232,255,0.3);padding:20px;">Aucun conseil enregistré</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.conseils.map(c => `
+    <tr id="row-conseil-${c.id}">
+      <td><strong style="color:white;">${c.classe}</strong></td>
+      <td>${formatDate(c.date)}</td>
+      <td>${c.heure || '—'}</td>
+      <td>${c.salle || '—'}</td>
+      <td><span class="badge badge-conseil">${c.trim}</span></td>
+      <td class="action-btns">
+        <button class="edit-btn" onclick="editConseil('${c.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteConseil('${c.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editConseil(id) {
+  const c = data.conseils.find(x => x.id === id);
+  const row = document.getElementById(`row-conseil-${id}`);
+  row.innerHTML = `
+    <td><input class="inline-input" value="${c.classe}"></td>
+    <td><input class="inline-input" type="date" value="${c.date}"></td>
+    <td><input class="inline-input" type="time" value="${c.heure || ''}"></td>
+    <td><input class="inline-input" value="${c.salle || ''}"></td>
+    <td>
+      <select class="inline-input">
+        <option value="T1" ${c.trim==='T1'?'selected':''}>T1</option>
+        <option value="T2" ${c.trim==='T2'?'selected':''}>T2</option>
+        <option value="T3" ${c.trim==='T3'?'selected':''}>T3</option>
+      </select>
+    </td>
+    <td class="action-btns">
+      <button class="save-btn" onclick="saveConseil('${id}', this)">💾</button>
+      <button class="cancel-btn" onclick="renderConseils_Admin()">✕</button>
+    </td>`;
+}
+
+async function saveConseil(id, btn) {
+  const row = document.getElementById(`row-conseil-${id}`);
+  const inputs = row.querySelectorAll('.inline-input');
+  const obj = { classe: inputs[0].value.trim(), date: inputs[1].value, heure: inputs[2].value || null, salle: inputs[3].value.trim() || null, trimestre: inputs[4].value };
+  if (!obj.classe || !obj.date) { showToast('⚠ Classe et date obligatoires'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('conseils', { id }, obj);
+    const i = data.conseils.findIndex(x => x.id === id);
+    data.conseils[i] = { ...data.conseils[i], classe: obj.classe, date: obj.date, heure: obj.heure ? obj.heure.slice(0,5) : '', salle: obj.salle || '', trim: obj.trimestre };
+    data.conseils.sort((a,b) => a.date.localeCompare(b.date));
+    renderConseils_Admin(); renderInfoPanel(); showToast('Conseil modifié');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾'; btn.disabled = false; }
+}
+
+// ============================================================
+// ABSENCES
+// ============================================================
+async function addAbsence() {
+  const obj = {
+    nom:           document.getElementById('abs-nom').value.trim(),
+    matiere:       document.getElementById('abs-matiere').value.trim() || null,
+    date:          document.getElementById('abs-date').value,
+    classes:       document.getElementById('abs-classes').value.trim() || null,
+    remplacement:  document.getElementById('abs-remplacement').value
+  };
+  if (!obj.nom || !obj.date) { alert('Veuillez remplir le nom et la date.'); return; }
+  try {
+    const rows = await sb.insert('absences', obj);
+    const r = rows[0];
+    data.absences.push({ id: r.id, nom: r.nom, matiere: r.matiere || '', date: r.date, classes: r.classes || '', remplacement: r.remplacement });
+    data.absences.sort((a,b) => a.date.localeCompare(b.date));
+    renderAbsences_Admin(); renderInfoPanel();
+    document.getElementById('abs-nom').value = '';
+    document.getElementById('abs-matiere').value = '';
+    document.getElementById('abs-date').value = '';
+    document.getElementById('abs-classes').value = '';
+    showToast('Absence signalée');
+  } catch(e) { showToast('⚠ Erreur sauvegarde'); console.error(e); }
+}
+
+async function deleteAbsence(id) {
+  try {
+    await sb.delete('absences', { id });
+    data.absences = data.absences.filter(a => a.id !== id);
+    renderAbsences_Admin(); renderInfoPanel();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderAbsences_Admin() {
+  const tbody = document.getElementById('absences-tbody');
+  if (!data.absences.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(220,232,255,0.3);padding:20px;">Aucune absence enregistrée</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.absences.map(a => `
+    <tr id="row-absence-${a.id}">
+      <td><strong style="color:white;">${a.nom}</strong></td>
+      <td>${a.matiere || '—'}</td>
+      <td>${formatDate(a.date)}</td>
+      <td>${a.classes || '—'}</td>
+      <td><span class="badge badge-absence">${a.remplacement}</span></td>
+      <td class="action-btns">
+        <button class="edit-btn" onclick="editAbsence('${a.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteAbsence('${a.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editAbsence(id) {
+  const a = data.absences.find(x => x.id === id);
+  const rempl = ['Non renseigné','Cours maintenu','Cours annulé','Travail à faire','Surveillant'];
+  const row = document.getElementById(`row-absence-${id}`);
+  row.innerHTML = `
+    <td><input class="inline-input" value="${a.nom}"></td>
+    <td><input class="inline-input" value="${a.matiere || ''}"></td>
+    <td><input class="inline-input" type="date" value="${a.date}"></td>
+    <td><input class="inline-input" value="${a.classes || ''}"></td>
+    <td><select class="inline-input">${rempl.map(r=>`<option ${a.remplacement===r?'selected':''}>${r}</option>`).join('')}</select></td>
+    <td class="action-btns">
+      <button class="save-btn" onclick="saveAbsence('${id}', this)">💾</button>
+      <button class="cancel-btn" onclick="renderAbsences_Admin()">✕</button>
+    </td>`;
+}
+
+async function saveAbsence(id, btn) {
+  const row = document.getElementById(`row-absence-${id}`);
+  const inputs = row.querySelectorAll('.inline-input');
+  const obj = { nom: inputs[0].value.trim(), matiere: inputs[1].value.trim() || null, date: inputs[2].value, classes: inputs[3].value.trim() || null, remplacement: inputs[4].value };
+  if (!obj.nom || !obj.date) { showToast('⚠ Nom et date obligatoires'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('absences', { id }, obj);
+    const i = data.absences.findIndex(x => x.id === id);
+    data.absences[i] = { ...data.absences[i], nom: obj.nom, matiere: obj.matiere || '', date: obj.date, classes: obj.classes || '', remplacement: obj.remplacement };
+    data.absences.sort((a,b) => a.date.localeCompare(b.date));
+    renderAbsences_Admin(); renderInfoPanel(); showToast('Absence modifiée');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾'; btn.disabled = false; }
+}
+
+// ============================================================
+// SORTIES
+// ============================================================
+async function addSortie() {
+  const obj = {
+    titre:          document.getElementById('sort-titre').value.trim(),
+    date:           document.getElementById('sort-date').value,
+    classes:        document.getElementById('sort-classes').value.trim() || null,
+    lieu:           document.getElementById('sort-lieu').value.trim() || null,
+    accompagnateur: document.getElementById('sort-acc').value.trim() || null,
+    heure_depart:   document.getElementById('sort-heure').value || null
+  };
+  if (!obj.titre || !obj.date) { alert('Veuillez remplir le titre et la date.'); return; }
+  try {
+    const rows = await sb.insert('sorties', obj);
+    const r = rows[0];
+    data.sorties.push({ id: r.id, titre: r.titre, date: r.date, classes: r.classes || '', lieu: r.lieu || '', acc: r.accompagnateur || '', heure: r.heure_depart ? r.heure_depart.slice(0,5) : '' });
+    data.sorties.sort((a,b) => a.date.localeCompare(b.date));
+    renderSorties_Admin(); renderInfoPanel();
+    ['sort-titre','sort-date','sort-classes','sort-lieu','sort-acc','sort-heure'].forEach(id => document.getElementById(id).value = '');
+    showToast('Sortie ajoutée');
+  } catch(e) { showToast('⚠ Erreur sauvegarde'); console.error(e); }
+}
+
+async function deleteSortie(id) {
+  try {
+    await sb.delete('sorties', { id });
+    data.sorties = data.sorties.filter(s => s.id !== id);
+    renderSorties_Admin(); renderInfoPanel();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderSorties_Admin() {
+  const tbody = document.getElementById('sorties-tbody');
+  if (!data.sorties.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(220,232,255,0.3);padding:20px;">Aucune sortie enregistrée</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.sorties.map(s => `
+    <tr id="row-sortie-${s.id}">
+      <td><strong style="color:white;">${s.titre}</strong></td>
+      <td>${formatDate(s.date)}</td>
+      <td>${s.classes || '—'}</td>
+      <td>${s.lieu || '—'}</td>
+      <td>${s.heure || '—'}</td>
+      <td class="action-btns">
+        <button class="edit-btn" onclick="editSortie('${s.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteSortie('${s.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editSortie(id) {
+  const s = data.sorties.find(x => x.id === id);
+  const row = document.getElementById(`row-sortie-${id}`);
+  row.innerHTML = `
+    <td><input class="inline-input" value="${s.titre}"></td>
+    <td><input class="inline-input" type="date" value="${s.date}"></td>
+    <td><input class="inline-input" value="${s.classes || ''}"></td>
+    <td><input class="inline-input" value="${s.lieu || ''}"></td>
+    <td><input class="inline-input" type="time" value="${s.heure || ''}"></td>
+    <td class="action-btns">
+      <button class="save-btn" onclick="saveSortie('${id}', this)">💾</button>
+      <button class="cancel-btn" onclick="renderSorties_Admin()">✕</button>
+    </td>`;
+}
+
+async function saveSortie(id, btn) {
+  const row = document.getElementById(`row-sortie-${id}`);
+  const inputs = row.querySelectorAll('.inline-input');
+  const obj = { titre: inputs[0].value.trim(), date: inputs[1].value, classes: inputs[2].value.trim() || null, lieu: inputs[3].value.trim() || null, heure_depart: inputs[4].value || null };
+  if (!obj.titre || !obj.date) { showToast('⚠ Titre et date obligatoires'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('sorties', { id }, obj);
+    const i = data.sorties.findIndex(x => x.id === id);
+    data.sorties[i] = { ...data.sorties[i], titre: obj.titre, date: obj.date, classes: obj.classes || '', lieu: obj.lieu || '', heure: obj.heure_depart ? obj.heure_depart.slice(0,5) : '' };
+    data.sorties.sort((a,b) => a.date.localeCompare(b.date));
+    renderSorties_Admin(); renderInfoPanel(); showToast('Sortie modifiée');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾'; btn.disabled = false; }
+}
+
+// ============================================================
+// EVENEMENTS
+// ============================================================
+async function addEvenement() {
+  const obj = {
+    titre:       document.getElementById('evt-titre').value.trim(),
+    date:        document.getElementById('evt-date').value,
+    heure:       document.getElementById('evt-heure').value || null,
+    lieu:        document.getElementById('evt-lieu').value.trim() || null,
+    description: document.getElementById('evt-desc').value.trim() || null
+  };
+  if (!obj.titre || !obj.date) { alert('Veuillez remplir le titre et la date.'); return; }
+  try {
+    const rows = await sb.insert('evenements', obj);
+    const r = rows[0];
+    data.evenements.push({ id: r.id, titre: r.titre, date: r.date, heure: r.heure ? r.heure.slice(0,5) : '', lieu: r.lieu || '', desc: r.description || '' });
+    data.evenements.sort((a,b) => a.date.localeCompare(b.date));
+    renderEvenements_Admin(); renderInfoPanel();
+    ['evt-titre','evt-date','evt-heure','evt-lieu','evt-desc'].forEach(id => document.getElementById(id).value = '');
+    showToast('Événement ajouté');
+  } catch(e) { showToast('⚠ Erreur sauvegarde'); console.error(e); }
+}
+
+async function deleteEvenement(id) {
+  try {
+    await sb.delete('evenements', { id });
+    data.evenements = data.evenements.filter(e => e.id !== id);
+    renderEvenements_Admin(); renderInfoPanel();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderEvenements_Admin() {
+  const tbody = document.getElementById('evenements-tbody');
+  if (!data.evenements.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:rgba(220,232,255,0.3);padding:20px;">Aucun événement enregistré</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.evenements.map(e => `
+    <tr id="row-evenement-${e.id}">
+      <td><strong style="color:white;">${e.titre}</strong></td>
+      <td>${formatDate(e.date)}</td>
+      <td>${e.heure || '—'}</td>
+      <td>${e.lieu || '—'}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.desc || '—'}</td>
+      <td class="action-btns">
+        <button class="edit-btn" onclick="editEvenement('${e.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteEvenement('${e.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editEvenement(id) {
+  const e = data.evenements.find(x => x.id === id);
+  const row = document.getElementById(`row-evenement-${id}`);
+  row.innerHTML = `
+    <td><input class="inline-input" value="${e.titre}"></td>
+    <td><input class="inline-input" type="date" value="${e.date}"></td>
+    <td><input class="inline-input" type="time" value="${e.heure || ''}"></td>
+    <td><input class="inline-input" value="${e.lieu || ''}"></td>
+    <td><input class="inline-input" value="${e.desc || ''}"></td>
+    <td class="action-btns">
+      <button class="save-btn" onclick="saveEvenement('${id}', this)">💾</button>
+      <button class="cancel-btn" onclick="renderEvenements_Admin()">✕</button>
+    </td>`;
+}
+
+async function saveEvenement(id, btn) {
+  const row = document.getElementById(`row-evenement-${id}`);
+  const inputs = row.querySelectorAll('.inline-input');
+  const obj = { titre: inputs[0].value.trim(), date: inputs[1].value, heure: inputs[2].value || null, lieu: inputs[3].value.trim() || null, description: inputs[4].value.trim() || null };
+  if (!obj.titre || !obj.date) { showToast('⚠ Titre et date obligatoires'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('evenements', { id }, obj);
+    const i = data.evenements.findIndex(x => x.id === id);
+    data.evenements[i] = { ...data.evenements[i], titre: obj.titre, date: obj.date, heure: obj.heure ? obj.heure.slice(0,5) : '', lieu: obj.lieu || '', desc: obj.description || '' };
+    data.evenements.sort((a,b) => a.date.localeCompare(b.date));
+    renderEvenements_Admin(); renderInfoPanel(); showToast('Événement modifié');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾'; btn.disabled = false; }
+}
+
+// ============================================================
+// CANTINE
+// ============================================================
+async function addCantine() {
+  const obj = {
+    date:           document.getElementById('cant-date').value,
+    entree:         document.getElementById('cant-entree').value.trim() || null,
+    plat:           document.getElementById('cant-plat').value.trim() || null,
+    accompagnement: document.getElementById('cant-accomp').value.trim() || null,
+    fromage:        document.getElementById('cant-fromage').value.trim() || null,
+    dessert:        document.getElementById('cant-dessert').value.trim() || null
+  };
+  if (!obj.date) { alert('Veuillez sélectionner une date.'); return; }
+  try {
+    const rows = await sb.insert('cantine', obj);
+    const r = rows[0];
+    data.cantine.push({ id: r.id, date: r.date, entree: r.entree || '', plat: r.plat || '', accomp: r.accompagnement || '', fromage: r.fromage || '', dessert: r.dessert || '' });
+    data.cantine.sort((a,b) => a.date.localeCompare(b.date));
+    renderCantine_Admin(); renderInfoPanel();
+    ['cant-date','cant-entree','cant-plat','cant-accomp','cant-fromage','cant-dessert'].forEach(id => document.getElementById(id).value = '');
+    showToast('Menu ajouté');
+  } catch(e) { showToast('⚠ Erreur sauvegarde'); console.error(e); }
+}
+
+async function deleteCantine(id) {
+  try {
+    await sb.delete('cantine', { id });
+    data.cantine = data.cantine.filter(c => c.id !== id);
+    renderCantine_Admin(); renderInfoPanel();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderCantine_Admin() {
+  const tbody = document.getElementById('cantine-tbody');
+  if (!data.cantine.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:rgba(220,232,255,0.3);padding:20px;">Aucun menu enregistré</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.cantine.map(c => `
+    <tr id="row-cantine-${c.id}">
+      <td><strong style="color:white;">${formatDate(c.date)}</strong></td>
+      <td>${c.entree || '—'}</td>
+      <td>${c.plat || '—'}</td>
+      <td>${c.accomp || '—'}</td>
+      <td>${c.fromage || '—'}</td>
+      <td>${c.dessert || '—'}</td>
+      <td class="action-btns">
+        <button class="edit-btn" onclick="editCantine('${c.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteCantine('${c.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editCantine(id) {
+  const c = data.cantine.find(x => x.id === id);
+  const row = document.getElementById(`row-cantine-${id}`);
+  row.innerHTML = `
+    <td><input class="inline-input" type="date" value="${c.date}"></td>
+    <td><input class="inline-input" value="${c.entree || ''}"></td>
+    <td><input class="inline-input" value="${c.plat || ''}"></td>
+    <td><input class="inline-input" value="${c.accomp || ''}"></td>
+    <td><input class="inline-input" value="${c.fromage || ''}"></td>
+    <td><input class="inline-input" value="${c.dessert || ''}"></td>
+    <td class="action-btns">
+      <button class="save-btn" onclick="saveCantine('${id}', this)">💾</button>
+      <button class="cancel-btn" onclick="renderCantine_Admin()">✕</button>
+    </td>`;
+}
+
+async function saveCantine(id, btn) {
+  const row = document.getElementById(`row-cantine-${id}`);
+  const inputs = row.querySelectorAll('.inline-input');
+  const obj = { date: inputs[0].value, entree: inputs[1].value.trim() || null, plat: inputs[2].value.trim() || null, accompagnement: inputs[3].value.trim() || null, fromage: inputs[4].value.trim() || null, dessert: inputs[5].value.trim() || null };
+  if (!obj.date) { showToast('⚠ Date obligatoire'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('cantine', { id }, obj);
+    const i = data.cantine.findIndex(x => x.id === id);
+    data.cantine[i] = { ...data.cantine[i], date: obj.date, entree: obj.entree || '', plat: obj.plat || '', accomp: obj.accompagnement || '', fromage: obj.fromage || '', dessert: obj.dessert || '' };
+    data.cantine.sort((a,b) => a.date.localeCompare(b.date));
+    renderCantine_Admin(); renderInfoPanel(); showToast('Menu modifié');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾'; btn.disabled = false; }
+}
+
+
+// ============================================================
+let pendingImageFile = null;   // fichier original File
+let pendingImageBase64 = null; // aperçu local uniquement
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (file) loadImageFile(file);
+}
+
+function loadImageFile(file) {
+  if (!file.type.startsWith('image/')) { alert('Veuillez sélectionner un fichier image.'); return; }
+  if (file.size > 10 * 1024 * 1024) { alert('L\'image dépasse 10 Mo. Veuillez en choisir une plus légère.'); return; }
+  pendingImageFile = file;
+  // Aperçu local en base64 (uniquement pour affichage avant upload)
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    pendingImageBase64 = e.target.result;
+    document.getElementById('preview-img').src = pendingImageBase64;
+    document.getElementById('drop-placeholder').style.display = 'none';
+    document.getElementById('drop-preview').style.display = 'block';
+    document.getElementById('drop-zone').style.borderColor = 'rgba(74,222,128,0.5)';
+    document.getElementById('drop-zone').style.background = 'rgba(74,222,128,0.04)';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImagePreview(event) {
+  event.stopPropagation();
+  pendingImageFile   = null;
+  pendingImageBase64 = null;
+  document.getElementById('slide-file-input').value = '';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('drop-placeholder').style.display = 'block';
+  document.getElementById('drop-preview').style.display = 'none';
+  document.getElementById('drop-zone').style.borderColor = 'rgba(232,184,75,0.25)';
+  document.getElementById('drop-zone').style.background = 'rgba(255,255,255,0.03)';
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').style.borderColor = 'rgba(232,184,75,0.7)';
+  document.getElementById('drop-zone').style.background = 'rgba(232,184,75,0.06)';
+}
+
+function dragLeave(e) {
+  if (!pendingImageFile) {
+    document.getElementById('drop-zone').style.borderColor = 'rgba(232,184,75,0.25)';
+    document.getElementById('drop-zone').style.background = 'rgba(255,255,255,0.03)';
+  }
+}
+
+function dropFile(e) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file) loadImageFile(file);
+}
+
+// Upload vers Supabase Storage — retourne l'URL publique
+async function uploadImageToStorage(file) {
+  const ext      = file.name.split('.').pop().toLowerCase();
+  const filename = `slide-${Date.now()}.${ext}`;
+  const path     = filename;
+
+  // Upload via l'API Storage de Supabase
+  const res = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/slides/${path}`,
+    {
+      method: 'POST',
+      headers: {
+        'apikey':        SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type':  file.type,
+        'x-upsert':      'true'
+      },
+      body: file
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error('Storage upload failed: ' + err);
+  }
+
+  // URL publique
+  return `${SUPABASE_URL}/storage/v1/object/public/slides/${path}`;
+}
+
+async function addSlide() {
+  const titre = document.getElementById('slide-title-input').value.trim();
+  if (!titre) { alert('Veuillez renseigner un titre.'); return; }
+
+  // Bouton en mode chargement
+  const btn = document.querySelector('#panel-diaporama .btn-primary');
+  const oldText = btn.textContent;
+  btn.textContent = '⏳ Envoi en cours…';
+  btn.disabled = true;
+
+  try {
+    let imageUrl = null;
+
+    // Upload l'image si une est sélectionnée
+    if (pendingImageFile) {
+      imageUrl = await uploadImageToStorage(pendingImageFile);
+    }
+
+    const obj = {
+      titre,
+      sous_titre: document.getElementById('slide-sub-input').value.trim() || null,
+      image_data: imageUrl,   // URL publique Storage (ou null)
+      couleur:    document.getElementById('slide-color-input').value,
+      emoji:      document.getElementById('slide-emoji-input').value.trim() || '🏫',
+      ordre:      data.slides.length
+    };
+
+    const rows = await sb.insert('slides', obj);
+    const r = rows[0];
+    data.slides.push({ id: r.id, title: r.titre, sub: r.sous_titre || '', img: r.image_data || '', color: r.couleur, emoji: r.emoji });
+    renderSlides_Admin();
+    renderSlideshow();
+    document.getElementById('slide-title-input').value = '';
+    document.getElementById('slide-sub-input').value = '';
+    clearImagePreview({ stopPropagation: () => {} });
+    showToast('Diapositive ajoutée');
+  } catch(e) {
+    showToast('⚠ Erreur : ' + e.message);
+    console.error(e);
+  } finally {
+    btn.textContent = oldText;
+    btn.disabled = false;
+  }
+}
+
+async function deleteSlide(id) {
+  try {
+    // Supprimer l'image du Storage si elle existe
+    const slide = data.slides.find(s => s.id === id);
+    if (slide && slide.img && slide.img.includes('/storage/v1/object/public/slides/')) {
+      const path = slide.img.split('/storage/v1/object/public/slides/')[1];
+      await fetch(`${SUPABASE_URL}/storage/v1/object/slides/${path}`, {
+        method: 'DELETE',
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      });
+    }
+    await sb.delete('slides', { id });
+    data.slides = data.slides.filter(s => s.id !== id);
+    renderSlides_Admin();
+    renderSlideshow();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderSlides_Admin() {
+  const grid = document.getElementById('slides-admin-grid');
+  if (!data.slides.length) {
+    grid.innerHTML = '<p style="color:rgba(220,232,255,0.3);font-size:0.85rem;">Aucune diapositive ajoutée.</p>';
+    return;
+  }
+  grid.innerHTML = data.slides.map(s => `
+    <div class="slide-thumb" id="slide-card-${s.id}">
+      ${s.img
+        ? `<img class="thumb-img" src="${s.img}" alt="${s.title}" onerror="this.style.display='none'">`
+        : `<div class="color-slide" style="background:${s.color};">
+            <div class="slide-emoji">${s.emoji}</div>
+            <div class="slide-title-prev">${s.title}</div>
+            ${s.sub ? `<div class="slide-sub-prev">${s.sub}</div>` : ''}
+          </div>`
+      }
+      <div class="thumb-overlay">
+        <button class="edit-btn" style="margin-bottom:6px;width:100%;" onclick="editSlide('${s.id}')">✏️ Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSlide('${s.id}')">🗑 Supprimer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editSlide(id) {
+  const s = data.slides.find(x => x.id === id);
+  const card = document.getElementById(`slide-card-${id}`);
+  card.innerHTML = `
+    <div style="padding:14px;display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,0.05);border-radius:10px;">
+      <div style="font-size:0.72rem;color:rgba(220,232,255,0.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Modifier</div>
+      <input class="inline-input" id="es-title-${id}" placeholder="Titre" value="${s.title.replace(/"/g,'&quot;')}">
+      <input class="inline-input" id="es-sub-${id}" placeholder="Sous-titre" value="${(s.sub||'').replace(/"/g,'&quot;')}">
+      <input class="inline-input" id="es-emoji-${id}" placeholder="Emoji" value="${s.emoji||''}" maxlength="4">
+      <input class="inline-input" id="es-color-${id}" type="color" value="${(s.color||'').includes('#') ? s.color : '#1a3a6b'}" style="height:32px;padding:2px 4px;cursor:pointer;">
+      <div style="display:flex;gap:6px;margin-top:4px;">
+        <button class="save-btn" style="flex:1;" onclick="saveSlide('${id}', this)">💾 Enregistrer</button>
+        <button class="cancel-btn" onclick="renderSlides_Admin()">✕</button>
+      </div>
+    </div>`;
+}
+
+async function saveSlide(id, btn) {
+  const titre     = document.getElementById(`es-title-${id}`).value.trim();
+  const sous_titre = document.getElementById(`es-sub-${id}`).value.trim() || null;
+  const emoji     = document.getElementById(`es-emoji-${id}`).value.trim() || '🏫';
+  const couleur   = document.getElementById(`es-color-${id}`).value;
+  if (!titre) { showToast('⚠ Le titre est obligatoire'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('slides', { id }, { titre, sous_titre, emoji, couleur });
+    const i = data.slides.findIndex(x => x.id === id);
+    data.slides[i] = { ...data.slides[i], title: titre, sub: sous_titre || '', emoji, color: couleur };
+    renderSlides_Admin();
+    renderSlideshow();
+    showToast('Diapositive modifiée');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾 Enregistrer'; btn.disabled = false; }
+}
+
+// ============================================================
+// TICKER
+// ============================================================
+async function addTickerMsg() {
+  const msg = document.getElementById('ticker-msg-input').value.trim();
+  if (!msg) return;
+  try {
+    const rows = await sb.insert('ticker_messages', { message: msg, ordre: data.ticker.length });
+    const r = rows[0];
+    data.ticker.push({ id: r.id, message: r.message });
+    renderTicker_Admin();
+    renderTicker();
+    document.getElementById('ticker-msg-input').value = '';
+    showToast('Message ajouté au bandeau');
+  } catch(e) { showToast('⚠ Erreur sauvegarde'); console.error(e); }
+}
+
+async function deleteTicker(id) {
+  try {
+    await sb.delete('ticker_messages', { id });
+    data.ticker = data.ticker.filter(t => t.id !== id);
+    renderTicker_Admin();
+    renderTicker();
+  } catch(e) { showToast('⚠ Erreur suppression'); console.error(e); }
+}
+
+function renderTicker_Admin() {
+  const tbody = document.getElementById('ticker-tbody');
+  if (!data.ticker.length) {
+    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:rgba(220,232,255,0.3);padding:20px;">Aucun message</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.ticker.map(t => `
+    <tr id="row-ticker-${t.id}">
+      <td style="color:white;">${t.message}</td>
+      <td class="action-btns">
+        <button class="edit-btn" onclick="editTicker('${t.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteTicker('${t.id}')">Supprimer</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function editTicker(id) {
+  const t = data.ticker.find(x => x.id === id);
+  const row = document.getElementById(`row-ticker-${id}`);
+  row.innerHTML = `
+    <td><input class="inline-input" value="${t.message.replace(/"/g, '&quot;')}" style="width:100%;"></td>
+    <td class="action-btns">
+      <button class="save-btn" onclick="saveTicker('${id}', this)">💾</button>
+      <button class="cancel-btn" onclick="renderTicker_Admin()">✕</button>
+    </td>`;
+  row.querySelector('.inline-input').focus();
+}
+
+async function saveTicker(id, btn) {
+  const row = document.getElementById(`row-ticker-${id}`);
+  const msg = row.querySelector('.inline-input').value.trim();
+  if (!msg) { showToast('⚠ Le message ne peut pas être vide'); return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    await sb.update('ticker_messages', { id }, { message: msg });
+    const i = data.ticker.findIndex(x => x.id === id);
+    data.ticker[i].message = msg;
+    renderTicker_Admin();
+    renderTicker();
+    showToast('Message modifié');
+  } catch(e) { showToast('⚠ Erreur'); console.error(e); btn.textContent = '💾'; btn.disabled = false; }
+}
+
+// ============================================================
+// THÈME D'AFFICHAGE
+// ============================================================
+let currentTheme = 'dark';
+let currentCustomColor = '#1a4a2a';
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  return {r,g,b};
+}
+
+function darken(hex, factor=0.6) {
+  const {r,g,b} = hexToRgb(hex);
+  return `rgb(${Math.round(r*factor)},${Math.round(g*factor)},${Math.round(b*factor)})`;
+}
+
+function applyTheme(theme, customColor) {
+  const body = document.body;
+  body.classList.remove('theme-dark','theme-light','theme-custom');
+
+  if (theme === 'light') {
+    body.classList.add('theme-light');
+  } else if (theme === 'custom') {
+    body.classList.add('theme-custom');
+    const color = customColor || currentCustomColor;
+    const dark  = darken(color, 0.55);
+    const mid   = darken(color, 0.75);
+    const {r,g,b} = hexToRgb(color);
+    body.style.setProperty('--custom-color',        color);
+    body.style.setProperty('--custom-dark',         dark);
+    body.style.setProperty('--custom-mid',          mid);
+    body.style.setProperty('--custom-dark-alpha',   `rgba(${r},${g},${b},0.85)`);
+    body.style.setProperty('--custom-darker-alpha', `rgba(${Math.round(r*.6)},${Math.round(g*.6)},${Math.round(b*.6)},0.95)`);
+    // Update custom preview card
+    const prev = document.getElementById('theme-preview-custom');
+    if (prev) prev.style.background = `linear-gradient(135deg,${mid},${dark})`;
+    // Update color picker
+    const picker = document.getElementById('set-custom-color');
+    if (picker) picker.value = color;
+  }
+
+  // Active state on cards
+  document.querySelectorAll('.theme-card').forEach(c => c.classList.remove('active'));
+  const activeCard = document.getElementById('theme-card-' + theme);
+  if (activeCard) activeCard.classList.add('active');
+
+  // Show/hide color row
+  const colorRow = document.getElementById('custom-color-row');
+  if (colorRow) colorRow.style.display = theme === 'custom' ? 'flex' : 'none';
+
+  currentTheme = theme;
+}
+
+function selectTheme(theme) {
+  applyTheme(theme, currentCustomColor);
+  saveThemeConfig();
+}
+
+function applyCustomColor(color) {
+  currentCustomColor = color;
+  // Update preset highlights
+  document.querySelectorAll('.color-preset').forEach(el => {
+    el.classList.toggle('active', el.style.background === color ||
+      el.getAttribute('onclick')?.includes(color));
+  });
+  applyTheme('custom', color);
+  saveThemeConfig();
+}
+
+async function saveThemeConfig() {
+  try {
+    await sb.upsert('affichage_config', { cle: 'theme', valeur: currentTheme }, 'school_id,cle');
+    if (currentTheme === 'custom') {
+      await sb.upsert('affichage_config', { cle: 'theme_color', valeur: currentCustomColor }, 'school_id,cle');
+    }
+  } catch(e) { console.warn('saveThemeConfig:', e); }
+}
+
+function initTheme() {
+  const theme = data.config['theme'] || 'dark';
+  const color = data.config['theme_color'] || '#1a4a2a';
+  currentCustomColor = color;
+  applyTheme(theme, color);
+}
+
+// ============================================================
+// CONFIG — tailles de police par section
+// ============================================================
+const FS_DEFAULT = '1.2'; // rem par défaut (L)
+
+function getFs(section) {
+  return parseFloat(data.config['font_size_' + section] || FS_DEFAULT);
+}
+
+async function setFontSize(section, size, btn) {
+  // Highlight bouton actif
+  const container = document.getElementById('fs-' + section);
+  if (container) container.querySelectorAll('.fs-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+
+  data.config['font_size_' + section] = size;
+
+  // Sauvegarder dans Supabase (upsert sur la clé)
+  try {
+    await sb.upsert('affichage_config', { cle: 'font_size_' + section, valeur: size }, 'school_id,cle');
+  } catch(e) { console.error('setFontSize error:', e); }
+
+  // Mettre à jour l'affichage
+  renderInfoPanel();
+  if (section === 'ticker') renderTicker();
+}
+
+function initFontSizePickers() {
+  ['conseils','absences','sorties','evenements','cantine','ticker'].forEach(section => {
+    const container = document.getElementById('fs-' + section);
+    if (!container) return;
+    const cur = data.config['font_size_' + section] || FS_DEFAULT;
+    container.querySelectorAll('.fs-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.size === cur);
+    });
+  });
+  // Vitesse du bandeau
+  const speedContainer = document.getElementById('speed-ticker');
+  if (speedContainer) {
+    const curSpeed = data.config['ticker_speed'] || '1';
+    speedContainer.querySelectorAll('.fs-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.speed === curSpeed);
+    });
+  }
+}
+
+
+// ============================================================
+// DISPLAY: INFO PANEL — défilement vertical infini en boucle
+// Un seul cadre, toutes les sections à la suite, duplication pour boucle parfaite
+// ============================================================
+const SCROLL_SPEED = 0.6;  // px/frame
+
+let allRAFs = [];
+
+function stopAllScrollers() {
+  allRAFs.forEach(id => cancelAnimationFrame(id));
+  allRAFs = [];
+}
+
+function startInfoScroller() {
+  const track = document.getElementById('cards-outer-track');
+  if (!track) return;
+  let y = 0;
+
+  function step() {
+    const halfH = track.scrollHeight / 2; // on a doublé le contenu
+    if (halfH > 0) {
+      y += SCROLL_SPEED;
+      if (y >= halfH) y = 0; // reset invisible : retour exactement au début
+      track.style.transform = `translateY(-${y}px)`;
+    }
+    const id = requestAnimationFrame(step);
+    allRAFs.push(id);
+  }
+  allRAFs.push(requestAnimationFrame(step));
+}
+
+function renderInfoPanel() {
+  stopAllScrollers();
+  const outerVp    = document.getElementById('cards-outer-vp');
+  const outerTrack = document.getElementById('cards-outer-track');
+  const today = new Date().toISOString().split('T')[0];
+
+  // ── Construire la liste de TOUTES les lignes de toutes les sections ──
+  const rows = [];
+
+  // Séparateur de section
+  const sep = (icon, label, colorClass) =>
+    `<div class="info-sep info-sep-${colorClass}">
+       <div class="info-sep-icon">${icon}</div>
+       <div class="info-sep-title">${label}</div>
+     </div>`;
+
+  // ── Absences ──
+  const recentAbsences = data.absences.filter(a => a.date >= today);
+  if (recentAbsences.length) {
+    const fs = getFs('absences');
+    const todayCount  = recentAbsences.filter(a => a.date === today).length;
+    const futureCount = recentAbsences.filter(a => a.date > today).length;
+    const label = todayCount && futureCount
+      ? `Absences — ${todayCount} aujourd'hui, ${futureCount} à venir`
+      : todayCount ? `Absences — ${formatDate(today)}` : `Absences à venir`;
+    rows.push(sep('🚫', label, 'absences'));
+    recentAbsences.forEach(a => {
+      const isToday  = a.date === today;
+      const [y,m,d]  = a.date.split('-');
+      const dateLabel = isToday ? "Aujourd'hui" : `${d}/${m}`;
+      const dateColor = isToday ? 'var(--accent2)' : 'rgba(220,232,255,0.5)';
+      rows.push(`
+      <div class="absent-pill" style="margin:4px 14px;">
+        <div class="absent-date-badge" style="background:${isToday?'rgba(224,92,58,0.2)':'rgba(255,255,255,0.07)'};border:1px solid ${isToday?'rgba(224,92,58,0.35)':'rgba(255,255,255,0.1)'};border-radius:8px;padding:4px 10px;text-align:center;flex-shrink:0;min-width:56px;">
+          <div style="font-size:${fs*0.65}rem;font-weight:700;color:${dateColor};text-transform:uppercase;letter-spacing:0.06em;">${dateLabel}</div>
+          ${!isToday ? `<div style="font-size:${fs*0.55}rem;color:rgba(220,232,255,0.3);">${y}</div>` : ''}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div class="absent-name" style="font-size:${fs}rem;">${a.nom}</div>
+          <div class="absent-info" style="font-size:${fs*0.82}rem;">${[a.matiere,a.classes,a.remplacement].filter(Boolean).join(' · ')}</div>
+        </div>
+      </div>`);
+    });
+  }
+
+  // ── Conseils ──
+  const upcomingConseils = data.conseils.filter(c => c.date >= today);
+  if (upcomingConseils.length) {
+    const fs = getFs('conseils');
+    rows.push(sep('📅', 'Conseils de classe', 'conseils'));
+    upcomingConseils.forEach(c => rows.push(`
+      <div class="conseil-row" style="font-size:${fs}rem;">
+        <div>
+          <span class="conseil-classe" style="font-size:${fs}rem;">${c.classe}</span>
+          <span style="margin-left:8px;font-size:${fs*0.8}rem;color:rgba(220,232,255,0.4);">${c.trim}</span>
+        </div>
+        <div style="text-align:right;">
+          <div class="conseil-date" style="font-size:${fs*0.9}rem;">${formatDate(c.date)}${c.heure?' · '+c.heure:''}</div>
+          <div class="conseil-salle" style="font-size:${fs*0.8}rem;">${c.salle||''}</div>
+        </div>
+      </div>`));
+  }
+
+  // ── Sorties ──
+  const upcomingSorties = data.sorties.filter(s => s.date >= today);
+  if (upcomingSorties.length) {
+    const fs = getFs('sorties');
+    rows.push(sep('🚌', 'Sorties scolaires', 'sorties'));
+    upcomingSorties.forEach(s => rows.push(`
+      <div class="event-row">
+        <div class="event-date-tag" style="font-size:${fs*0.85}rem;">${shortDate(s.date)}</div>
+        <div class="event-info">
+          <div class="event-title" style="font-size:${fs}rem;">${s.titre}</div>
+          <div class="event-sub" style="font-size:${fs*0.85}rem;">${s.classes?s.classes+' · ':''}${s.lieu||''}</div>
+        </div>
+      </div>`));
+  }
+
+  // ── Événements ──
+  const upcomingEvts = data.evenements.filter(e => e.date >= today);
+  if (upcomingEvts.length) {
+    const fs = getFs('evenements');
+    rows.push(sep('🎉', 'Événements', 'evenements'));
+    upcomingEvts.forEach(e => rows.push(`
+      <div class="event-row">
+        <div class="evt-date-tag" style="font-size:${fs*0.85}rem;">${shortDate(e.date)}</div>
+        <div class="event-info">
+          <div class="event-title" style="font-size:${fs}rem;">${e.titre}</div>
+          <div class="event-sub" style="font-size:${fs*0.85}rem;">${e.lieu||''}${e.heure?' · '+e.heure:''}</div>
+        </div>
+      </div>`));
+  }
+
+  // ── Cantine ──
+  const nextWeek = new Date(); nextWeek.setDate(nextWeek.getDate() + 14);
+  const nextWeekStr = nextWeek.toISOString().split('T')[0];
+  const upcomingCantine = data.cantine.filter(c => c.date >= today && c.date <= nextWeekStr);
+  if (upcomingCantine.length) {
+    const fs = getFs('cantine');
+    const jours = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+    rows.push(sep('🍽', 'Menu cantine', 'cantine'));
+    upcomingCantine.forEach(c => {
+      const [y,m,d] = c.date.split('-').map(Number);
+      const dayName = jours[new Date(y,m-1,d).getDay()];
+      rows.push(`
+      <div class="event-row">
+        <div class="event-date-tag" style="background:rgba(34,197,94,0.15);color:#4ade80;border-color:rgba(34,197,94,0.3);min-width:44px;text-align:center;font-size:${fs*0.85}rem;">${dayName}<br><span style="font-size:${fs*0.7}rem;">${d}/${m}</span></div>
+        <div class="event-info">
+          ${c.entree  ?`<div class="event-sub" style="font-size:${fs*0.9}rem;">🥗 ${c.entree}</div>`:''}
+          ${c.plat    ?`<div class="event-title" style="font-size:${fs}rem;">🍽 ${c.plat}</div>`:''}
+          ${c.accomp  ?`<div class="event-sub" style="font-size:${fs*0.9}rem;">🌾 ${c.accomp}</div>`:''}
+          ${c.fromage ?`<div class="event-sub" style="font-size:${fs*0.9}rem;">🧀 ${c.fromage}</div>`:''}
+          ${c.dessert ?`<div class="event-sub" style="font-size:${fs*0.9}rem;">🍮 ${c.dessert}</div>`:''}
+        </div>
+      </div>`);
+    });
+  }
+
+  if (!rows.length) {
+    outerTrack.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:rgba(220,232,255,0.25);text-align:center;padding:40px;font-size:1.1rem;"><p style="font-size:3rem;margin-bottom:12px;">📋</p><p>Aucune information.<br>Ajoutez du contenu depuis l'administration.</p></div>`;
+    return;
+  }
+
+  // ── Dupliquer le contenu (bloc A + bloc B) pour la boucle infinie ──
+  const blockHtml = rows.join('');
+  outerTrack.innerHTML = blockHtml + blockHtml;
+
+  // Lancer le défilement après un frame pour que le DOM soit rendu
+  requestAnimationFrame(() => startInfoScroller());
+}
+
+
+
+// ============================================================
+// DISPLAY: SLIDESHOW
+// ============================================================
+let currentSlide = 0;
+let slideshowTimer = null;
+
+function renderSlideshow() {
+  const container = document.getElementById('slideshow');
+  const dots = document.getElementById('slide-dots');
+
+  if (!data.slides.length) {
+    container.innerHTML = `
+      <div class="slide active" id="slide-placeholder">
+        <div class="slide-placeholder">
+          <div class="icon">🖼</div>
+          <p style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem;">Aucune image configurée</p>
+          <p style="font-size:0.85rem;">Ajoutez des diapositives depuis le panneau d'administration</p>
+        </div>
+      </div>`;
+    dots.innerHTML = '';
+    if (slideshowTimer) clearInterval(slideshowTimer);
+    return;
+  }
+
+  container.innerHTML = data.slides.map((s, i) => `
+    <div class="slide${i === 0 ? ' active' : ''}">
+      ${s.img
+        ? `<div class="slide-img" style="background-image:url('${s.img}'); flex:1; position:relative;">
+            <div class="slide-caption">
+              <h2>${s.title}</h2>
+              ${s.sub ? `<p>${s.sub}</p>` : ''}
+            </div>
+          </div>`
+        : `<div style="flex:1;background:${s.color};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;position:relative;">
+            <div style="font-size:5rem;">${s.emoji}</div>
+            <div style="font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:white;text-align:center;padding:0 40px;line-height:1.1;">${s.title}</div>
+            ${s.sub ? `<div style="font-size:1.1rem;color:rgba(255,255,255,0.7);">${s.sub}</div>` : ''}
+          </div>`
+      }
+    </div>
+  `).join('');
+
+  dots.innerHTML = data.slides.map((_, i) =>
+    `<div class="dot${i === 0 ? ' active' : ''}" onclick="goToSlide(${i})"></div>`
+  ).join('');
+
+  currentSlide = 0;
+  if (slideshowTimer) clearInterval(slideshowTimer);
+  slideshowTimer = setInterval(nextSlide, 6000);
+}
+
+function goToSlide(idx) {
+  const slides = document.querySelectorAll('#slideshow .slide');
+  const dotEls = document.querySelectorAll('.dot');
+  slides.forEach(s => s.classList.remove('active'));
+  dotEls.forEach(d => d.classList.remove('active'));
+  currentSlide = idx;
+  if (slides[idx]) slides[idx].classList.add('active');
+  if (dotEls[idx]) dotEls[idx].classList.add('active');
+}
+
+function nextSlide() {
+  if (!data.slides.length) return;
+  goToSlide((currentSlide + 1) % data.slides.length);
+}
+
+// ============================================================
+// DISPLAY: TICKER
+// ============================================================
+async function setTickerSpeed(speed, btn) {
+  const container = document.getElementById('speed-ticker');
+  if (container) container.querySelectorAll('.fs-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  data.config['ticker_speed'] = speed;
+  try {
+    await sb.upsert('affichage_config', { cle: 'ticker_speed', valeur: speed }, 'school_id,cle');
+  } catch(e) { console.error('setTickerSpeed error:', e); }
+  renderTicker();
+}
+
+function renderTicker() {
+  const track = document.getElementById('ticker-track');
+  const msgs = data.ticker.length ? data.ticker.map(t => t.message) : ['Bienvenue sur le tableau d\'affichage'];
+  const fs = getFs('ticker');
+  const speed = parseFloat(data.config['ticker_speed'] || '1');
+
+  // Créer un item de mesure temporaire pour estimer la largeur visible
+  const itemHtml = msg =>
+    `<span class="ticker-item" style="font-size:${fs}rem;"><span class="ticker-bullet"></span>${msg}</span>`;
+
+  // Répéter les messages suffisamment pour que le premier bloc
+  // soit plus large que la fenêtre, garantissant le défilement continu.
+  // On duplique le tableau de base (bloc A), puis on remet le même bloc (bloc B).
+  // L'animation passe de 0 → -50% : quand bloc A sort, bloc B est exactement à sa place.
+  // Le nombre de répétitions minimum est 2 (A + B) mais on assure que
+  // chaque bloc contient assez de messages pour dépasser la largeur visible.
+  const minReps = Math.max(2, Math.ceil(8 / msgs.length)); // au moins ~8 messages par bloc
+  const blockMsgs = Array.from({ length: minReps }, () => msgs).flat();
+
+  // bloc A + bloc B (identiques) → animation translateX(-50%) = reset parfait
+  track.innerHTML = [...blockMsgs, ...blockMsgs].map(itemHtml).join('');
+
+  // Durée proportionnelle au nombre de chars du bloc de base × vitesse
+  const totalChars = msgs.join(' ').length * minReps;
+  const baseDuration = Math.max(15, totalChars * 0.22);
+  track.style.animationDuration = (baseDuration / speed) + 's';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function renderAll_Display() {
+  initTheme();
+  applySchoolSettings();
+  renderInfoPanel();
+  renderSlideshow();
+  renderTicker();
+}
+
+function renderAll_Admin() {
+  initTheme();
+  applySchoolSettings();
+  renderConseils_Admin();
+  renderAbsences_Admin();
+  renderSorties_Admin();
+  renderEvenements_Admin();
+  renderCantine_Admin();
+  renderSlides_Admin();
+  renderTicker_Admin();
+  initFontSizePickers();
+  // Ouvrir le home et mettre à jour les compteurs
+  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-home').classList.add('active');
+  document.querySelector('.nav-home').classList.add('active');
+  updateHomeCounts();
+}
+
+// Chargement initial — requiert une session valide
+(async () => {
+  if (!_accessToken || !_userId) {
+    document.getElementById('login-screen').style.display = 'flex';
+    return;
+  }
+  await loadAllData();
+  if (!data.school.id) {
+    // Token expiré ou invalide
+    _accessToken = null; _userId = null;
+    localStorage.removeItem('sb_token'); localStorage.removeItem('sb_uid');
+    document.getElementById('login-screen').style.display = 'flex';
+    return;
+  }
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('display-mode').style.display = 'flex';
+  renderAll_Display();
+})();
+</script>
+</body>
+</html>

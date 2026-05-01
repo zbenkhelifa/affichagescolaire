@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scolactu — Guide des fonctionnalités</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --cream:   #F7F2E8;
+  --cream2:  #EDE7D9;
+  --ink:     #1A1F2E;
+  --ink2:    #3D4559;
+  --ink3:    #7A8299;
+  --gold:    #C8973A;
+  --gold2:   #E8B84B;
+  --blue:    #1C3461;
+  --blue2:   #2A4F96;
+  --red:     #C04A2A;
+  --green:   #2A6B42;
+  --line:    rgba(26,31,46,0.1);
+  --r:       16px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  overflow-x:hidden;
+}
+
+/* ── GRAIN ── */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:999;
+  opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;
+  background:rgba(247,242,232,0.92);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}
+.nav-icon{width:30px;height:30px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+.nav-name{font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;}
+.nav-links{display:flex;gap:28px;}
+.nav-links a{font-size:.8rem;font-weight:500;color:var(--ink2);text-decoration:none;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;}
+.nav-links a:hover{color:var(--blue);}
+@media(max-width:768px){.nav-links{display:none;}nav{padding:0 20px;}}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;
+  padding:100px 24px 80px;
+  background:var(--blue);
+  position:relative;overflow:hidden;
+}
+.hero-dots{
+  position:absolute;inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+.hero-glow{
+  position:absolute;width:700px;height:700px;
+  background:radial-gradient(circle,rgba(200,151,58,.18),transparent 65%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold2);margin-bottom:28px;position:relative;z-index:1;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:24px;height:1px;background:var(--gold2);}
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(3rem,7vw,6rem);
+  font-weight:900;line-height:1.04;
+  letter-spacing:-.03em;color:white;
+  max-width:820px;position:relative;z-index:1;
+}
+.hero h1 em{font-style:italic;color:var(--gold2);}
+.hero-sub{
+  font-size:clamp(1rem,2vw,1.2rem);
+  color:rgba(255,255,255,.6);
+  max-width:540px;line-height:1.7;
+  margin:24px auto 0;position:relative;z-index:1;
+}
+.hero-chips{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  margin-top:40px;position:relative;z-index:1;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.8);padding:7px 16px;border-radius:100px;
+  font-size:.8rem;font-weight:500;
+}
+.chip-dot{width:6px;height:6px;border-radius:50%;}
+
+/* Mockup TV hero */
+.hero-mockup{
+  position:relative;z-index:1;
+  margin-top:64px;width:100%;max-width:860px;
+}
+.tv-frame{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;padding:12px;
+  box-shadow:0 40px 80px rgba(0,0,0,.4),0 0 0 1px rgba(200,151,58,.12);
+}
+.tv-bar{
+  display:flex;gap:6px;align-items:center;
+  padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);
+  margin-bottom:10px;
+}
+.tv-dot{width:9px;height:9px;border-radius:50%;}
+.tv-url{
+  flex:1;background:rgba(255,255,255,.05);border-radius:5px;
+  padding:4px 12px;font-family:'DM Mono',monospace;font-size:.68rem;
+  color:rgba(255,255,255,.3);text-align:center;
+}
+.tv-screen{
+  border-radius:10px;overflow:hidden;
+  aspect-ratio:16/9;background:#06090F;
+  display:grid;grid-template-rows:auto 1fr auto;position:relative;
+}
+.scr-top{
+  background:rgba(10,16,28,.95);
+  border-bottom:2px solid var(--gold2);
+  padding:7px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.scr-brand{display:flex;align-items:center;gap:6px;}
+.scr-brand-icon{width:22px;height:22px;background:var(--gold2);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:.6rem;}
+.scr-brand-name{font-size:.72rem;font-weight:700;color:white;}
+.scr-clock{font-family:'DM Mono',monospace;font-size:1.5rem;font-weight:700;color:white;line-height:1;}
+.scr-live{display:flex;align-items:center;gap:5px;font-size:.55rem;color:#4ade80;font-weight:600;}
+.scr-live-dot{width:5px;height:5px;background:#4ade80;border-radius:50%;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.scr-main{display:grid;grid-template-columns:1fr 36%;overflow:hidden;}
+.scr-slide{
+  background:linear-gradient(160deg,#1C3461,#06090F);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+}
+.scr-slide-emoji{font-size:2.8rem;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.scr-slide-title{font-size:.8rem;font-weight:700;color:white;}
+.scr-slide-sub{font-size:.52rem;color:rgba(255,255,255,.4);}
+.scr-panel{
+  border-left:1px solid rgba(200,151,58,.15);
+  padding:8px;display:flex;flex-direction:column;gap:6px;overflow:hidden;
+}
+.scr-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:7px 9px;}
+.scr-card-lbl{font-size:.42rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold2);margin-bottom:5px;}
+.scr-row{display:flex;gap:5px;align-items:center;margin-bottom:3px;}
+.scr-badge{padding:1px 6px;border-radius:100px;font-size:.38rem;font-weight:700;}
+.scr-badge-r{background:rgba(192,74,42,.2);color:#f87171;}
+.scr-badge-g{background:rgba(42,107,66,.2);color:#4ade80;}
+.scr-badge-y{background:rgba(200,151,58,.2);color:var(--gold2);}
+.scr-text{font-size:.42rem;color:rgba(255,255,255,.5);}
+.scr-ticker{
+  background:rgba(200,151,58,.12);
+  border-top:1px solid rgba(200,151,58,.2);
+  height:24px;display:flex;align-items:center;overflow:hidden;
+}
+.scr-ticker-txt{
+  white-space:nowrap;font-size:.48rem;color:var(--gold2);
+  font-weight:600;letter-spacing:.05em;
+  animation:tickscroll 20s linear infinite;padding-left:100%;
+}
+@keyframes tickscroll{from{transform:translateX(0)}to{transform:translateX(-200%)}}
+
+/* ── SECTIONS ── */
+section{padding:96px 48px;}
+@media(max-width:768px){section{padding:64px 20px;}}
+
+.s-eyebrow{
+  font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--gold);display:flex;align-items:center;gap:8px;margin-bottom:14px;
+}
+.s-eyebrow::before{content:'';display:block;width:20px;height:1px;background:var(--gold);}
+.s-h2{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2rem,4vw,3.2rem);font-weight:900;
+  line-height:1.08;letter-spacing:-.03em;color:var(--ink);
+}
+.s-h2 em{color:var(--blue);font-style:italic;}
+.s-body{font-size:1rem;color:var(--ink2);line-height:1.75;max-width:520px;margin-top:14px;}
+
+.max{max-width:1200px;margin:0 auto;}
+
+/* ── FONCTIONNALITÉS GRILLE ── */
+.feat-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:20px;overflow:hidden;
+  margin-top:56px;
+}
+@media(max-width:900px){.feat-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr;}}
+.feat-card{
+  background:var(--cream);padding:36px 28px;
+  transition:background .2s;cursor:default;
+  position:relative;
+}
+.feat-card:hover{background:#fff;}
+.feat-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:var(--blue);transform:scaleX(0);transform-origin:left;
+  transition:transform .25s;
+}
+.feat-card:hover::after{transform:scaleX(1);}
+.feat-ico{
+  width:44px;height:44px;border-radius:12px;
+  background:var(--cream2);display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;margin-bottom:18px;
+  transition:transform .2s,background .2s;
+}
+.feat-card:hover .feat-ico{transform:scale(1.1);background:rgba(28,52,97,.1);}
+.feat-title{font-size:1rem;font-weight:700;margin-bottom:8px;color:var(--ink);}
+.feat-desc{font-size:.85rem;color:var(--ink2);line-height:1.6;}
+.feat-tag{
+  display:inline-block;margin-top:12px;
+  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--gold);
+}
+
+/* ── SECTION ADMIN ── */
+.admin-sec{background:var(--ink);color:white;}
+.admin-sec .s-h2{color:white;}
+.admin-sec .s-h2 em{color:var(--gold2);}
+.admin-sec .s-body{color:rgba(255,255,255,.5);}
+.admin-sec .s-eyebrow{color:var(--gold2);}
+.admin-sec .s-eyebrow::before{background:var(--gold2);}
+
+.admin-split{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:48px;align-items:start;margin-top:56px;
+}
+@media(max-width:900px){.admin-split{grid-template-columns:1fr;}}
+
+/* Fausse interface admin */
+.admin-mockup{
+  background:#080F1E;border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.5);
+}
+.admin-mock-top{
+  background:#101F3A;border-bottom:2px solid var(--gold2);
+  padding:10px 16px;display:flex;align-items:center;justify-content:space-between;
+}
+.admin-mock-title{font-size:.72rem;font-weight:700;color:white;}
+.admin-mock-badge{
+  background:rgba(200,151,58,.2);border:1px solid rgba(200,151,58,.3);
+  color:var(--gold2);padding:2px 8px;border-radius:4px;font-size:.6rem;font-weight:700;
+}
+.admin-mock-body{display:grid;grid-template-columns:140px 1fr;}
+.admin-mock-nav{
+  background:#0D1929;border-right:1px solid rgba(255,255,255,.06);
+  padding:12px 0;
+}
+.amn-item{
+  padding:8px 12px;font-size:.65rem;font-weight:600;
+  color:rgba(220,232,255,.45);display:flex;align-items:center;gap:7px;
+  transition:background .15s,color .15s;border-left:2px solid transparent;
+}
+.amn-item.act{background:rgba(200,151,58,.1);color:var(--gold2);border-left-color:var(--gold2);}
+.amn-lbl{font-size:.55rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.2);padding:10px 12px 4px;}
+.admin-mock-panel{padding:16px;}
+.amp-title{font-size:.72rem;font-weight:700;color:white;margin-bottom:10px;}
+.amp-table{width:100%;border-collapse:collapse;}
+.amp-table th{font-size:.52rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;}
+.amp-table td{font-size:.6rem;color:rgba(255,255,255,.65);padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.04);}
+.amp-badge{display:inline-block;padding:1px 7px;border-radius:100px;font-size:.52rem;font-weight:700;}
+.amp-badge-r{background:rgba(192,74,42,.2);color:#f87171;}
+.amp-badge-g{background:rgba(42,107,66,.2);color:#4ade80;}
+.amp-btns{display:flex;gap:5px;}
+.amp-btn{padding:2px 7px;border-radius:5px;font-size:.55rem;font-weight:600;border:none;cursor:pointer;}
+.amp-btn-edit{background:rgba(74,144,226,.15);color:#60a5fa;border:1px solid rgba(74,144,226,.3);}
+.amp-btn-del{background:rgba(192,74,42,.15);color:#f87171;border:1px solid rgba(192,74,42,.3);}
+
+.steps-list{display:flex;flex-direction:column;gap:24px;}
+.step-item{
+  display:flex;gap:20px;align-items:flex-start;
+  padding:20px 24px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  transition:background .2s,border-color .2s;
+}
+.step-item:hover{background:rgba(255,255,255,.07);border-color:rgba(200,151,58,.25);}
+.step-num{
+  width:32px;height:32px;flex-shrink:0;
+  background:var(--gold);color:var(--ink);
+  border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.85rem;
+}
+.step-title{font-size:.92rem;font-weight:700;color:white;margin-bottom:5px;}
+.step-desc{font-size:.82rem;color:rgba(255,255,255,.5);line-height:1.6;}
+.step-code{
+  display:inline-block;margin-top:8px;
+  background:rgba(200,151,58,.1);border:1px solid rgba(200,151,58,.2);
+  border-radius:6px;padding:4px 12px;
+  font-family:'DM Mono',monospace;font-size:.72rem;color:var(--gold2);
+}
+
+/* ── SECTIONS FONCTIONNALITÉS DÉTAILLÉES ── */
+.detail-sec{background:var(--cream2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.detail-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:64px;align-items:center;margin-top:56px;
+}
+@media(max-width:900px){.detail-grid{grid-template-columns:1fr;gap:36px;}}
+.detail-grid.reverse{direction:rtl;}
+.detail-grid.reverse>*{direction:ltr;}
+
+.detail-visual{
+  background:var(--blue);border-radius:20px;
+  padding:28px;position:relative;overflow:hidden;
+  box-shadow:0 20px 50px rgba(28,52,97,.3);
+  min-height:280px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.detail-visual::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 20%,rgba(200,151,58,.15),transparent 60%);
+}
+.dv-emoji{position:absolute;top:24px;right:24px;font-size:3rem;opacity:.7;animation:float 4s ease-in-out infinite;}
+.dv-tag{
+  display:inline-block;padding:3px 12px;border-radius:100px;
+  font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:rgba(200,151,58,.2);color:var(--gold2);
+  margin-bottom:10px;position:relative;z-index:1;
+}
+.dv-title{
+  font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;
+  color:white;line-height:1.2;position:relative;z-index:1;margin-bottom:10px;
+}
+.dv-list{list-style:none;position:relative;z-index:1;}
+.dv-list li{
+  font-size:.82rem;color:rgba(255,255,255,.65);
+  padding:4px 0;display:flex;gap:8px;align-items:flex-start;
+}
+.dv-list li::before{content:'→';color:var(--gold2);flex-shrink:0;font-weight:700;}
+
+.detail-content{}
+.detail-content .s-eyebrow{margin-bottom:10px;}
+.detail-content .s-h2{font-size:clamp(1.6rem,3vw,2.4rem);}
+.detail-content .s-body{margin-top:12px;}
+.detail-how{margin-top:28px;}
+.detail-how h4{
+  font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:14px;
+}
+.how-step{
+  display:flex;gap:14px;padding:12px 0;
+  border-bottom:1px solid var(--line);
+}
+.how-step:last-child{border-bottom:none;}
+.how-num{
+  width:24px;height:24px;flex-shrink:0;
+  background:var(--blue);color:white;
+  border-radius:7px;display:flex;align-items:center;justify-content:center;
+  font-size:.68rem;font-weight:800;
+}
+.how-text{font-size:.85rem;color:var(--ink2);line-height:1.55;}
+.how-text strong{color:var(--ink);font-weight:600;}
+
+/* ── TABLEAU RÉCAPITULATIF ── */
+.recap-sec{}
+.recap-table-wrap{overflow-x:auto;margin-top:48px;border:1px solid var(--line);border-radius:16px;}
+.recap-table{width:100%;border-collapse:collapse;min-width:640px;}
+.recap-table thead tr{background:var(--blue);}
+.recap-table thead th{
+  font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:white;padding:14px 18px;text-align:left;
+}
+.recap-table thead th:first-child{border-radius:15px 0 0 0;}
+.recap-table thead th:last-child{border-radius:0 15px 0 0;}
+.recap-table tbody tr{transition:background .15s;}
+.recap-table tbody tr:hover{background:rgba(28,52,97,.04);}
+.recap-table td{
+  padding:13px 18px;border-bottom:1px solid var(--line);
+  font-size:.85rem;color:var(--ink2);
+}
+.recap-table tbody tr:last-child td{border-bottom:none;}
+.recap-table td:first-child{font-weight:700;color:var(--ink);}
+.rt-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:3px 10px;border-radius:100px;font-size:.7rem;font-weight:700;
+}
+.rt-b-display{background:rgba(28,52,97,.1);color:var(--blue);}
+.rt-b-admin{background:rgba(200,151,58,.15);color:var(--gold);}
+.rt-b-both{background:rgba(42,107,66,.1);color:var(--green);}
+
+/* ── THÈMES ── */
+.themes-sec{background:var(--ink);}
+.themes-sec .s-h2{color:white;}
+.themes-sec .s-h2 em{color:var(--gold2);}
+.themes-sec .s-eyebrow{color:var(--gold2);}
+.themes-sec .s-eyebrow::before{background:var(--gold2);}
+.themes-sec .s-body{color:rgba(255,255,255,.5);}
+
+.themes-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  margin-top:48px;
+}
+@media(max-width:700px){.themes-grid{grid-template-columns:1fr;}}
+.theme-card{
+  border:1px solid rgba(255,255,255,.08);border-radius:18px;
+  overflow:hidden;transition:transform .2s,border-color .2s;
+}
+.theme-card:hover{transform:translateY(-4px);border-color:rgba(200,151,58,.3);}
+.theme-preview{height:140px;position:relative;display:flex;flex-direction:column;}
+.tp-bar{height:22px;flex-shrink:0;}
+.tp-body{flex:1;display:flex;gap:3px;padding:4px;}
+.tp-slide{flex:1.5;border-radius:4px;}
+.tp-panel{flex:1;border-radius:4px;}
+.tp-ticker{height:14px;flex-shrink:0;}
+.theme-info{background:rgba(255,255,255,.05);padding:16px 18px;}
+.theme-name{font-size:.9rem;font-weight:700;color:white;margin-bottom:4px;}
+.theme-desc{font-size:.78rem;color:rgba(255,255,255,.45);line-height:1.5;}
+
+/* ── COMPAT ── */
+.compat-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  margin-top:48px;
+}
+@media(max-width:768px){.compat-grid{grid-template-columns:1fr 1fr;}}
+.compat-card{
+  background:white;border:1px solid var(--line);border-radius:14px;
+  padding:26px 18px;text-align:center;
+  transition:box-shadow .2s,transform .2s;
+}
+.compat-card:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(28,52,97,.1);}
+.compat-ico{font-size:2rem;margin-bottom:10px;}
+.compat-name{font-size:.88rem;font-weight:700;color:var(--ink);margin-bottom:5px;}
+.compat-desc{font-size:.75rem;color:var(--ink3);line-height:1.5;}
+
+/* ── DÉMARRAGE RAPIDE ── */
+.start-sec{
+  background:var(--blue);
+  position:relative;overflow:hidden;
+}
+.start-sec::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(200,151,58,.12),transparent);
+}
+
+.start-card{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:16px;padding:28px;
+  transition:background .2s,border-color .2s;
+}
+.start-card:hover{background:rgba(255,255,255,.09);border-color:rgba(200,151,58,.25);}
+.start-card-title{
+  display:flex;align-items:center;gap:12px;
+  font-size:1rem;font-weight:700;color:white;margin-bottom:16px;
+}
+.start-card-num{
+  width:28px;height:28px;background:var(--gold);color:var(--ink);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:.8rem;flex-shrink:0;
+}
+.start-steps{display:flex;flex-direction:column;gap:10px;}
+.ss-item{
+  display:flex;gap:10px;
+  font-size:.82rem;color:rgba(255,255,255,.6);line-height:1.55;
+}
+.ss-dot{
+  width:6px;height:6px;background:var(--gold2);border-radius:50%;
+  flex-shrink:0;margin-top:6px;
+}
+.ss-code{
+  display:inline-block;margin-top:6px;
+  background:rgba(200,151,58,.12);border:1px solid rgba(200,151,58,.2);
+  border-radius:5px;padding:3px 10px;
+  font-family:'DM Mono',monospace;font-size:.72rem;color:var(--gold2);
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--ink);padding:48px;
+  display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;
+}
+@media(max-width:700px){footer{grid-template-columns:1fr;padding:32px 20px;}}
+.footer-brand{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:white;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.footer-brand-icon{width:28px;height:28px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:.75rem;}
+.footer-desc{font-size:.8rem;color:rgba(255,255,255,.3);line-height:1.65;}
+.footer-col h5{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:rgba(255,255,255,.3);margin-bottom:14px;}
+.footer-col a{display:block;font-size:.82rem;color:rgba(255,255,255,.45);text-decoration:none;margin-bottom:9px;transition:color .2s;}
+.footer-col a:hover{color:white;}
+.footer-bottom{
+  padding:18px 48px;background:var(--ink);
+  border-top:1px solid rgba(255,255,255,.06);
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:.72rem;color:rgba(255,255,255,.2);flex-wrap:wrap;gap:8px;
+}
+@media(max-width:700px){.footer-bottom{padding:16px 20px;}}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.in{opacity:1;transform:none;}
+.reveal-d1{transition-delay:.1s;}
+.reveal-d2{transition-delay:.2s;}
+.reveal-d3{transition-delay:.3s;}
+.reveal-d4{transition-delay:.4s;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-icon">🏫</div>
+    <span class="nav-name">Scolactu</span>
+  </a>
+  <div class="nav-links">
+    <a href="#fonctionnalites">Fonctionnalités</a>
+    <a href="#administration">Administration</a>
+    <a href="#details">Sections</a>
+    <a href="https://scolactu.web.app" target="_blank" rel="noopener" style="background:var(--gold);color:var(--ink);padding:7px 18px;border-radius:100px;font-weight:700;letter-spacing:.04em;">🏫 Ouvrir l'app →</a>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <div class="hero-dots"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow">Guide des fonctionnalités</div>
+  <h1>Tout ce que fait<br><em>Scolactu</em></h1>
+  <p class="hero-sub">Application de tableau d'affichage numérique pour les établissements scolaires — absences, menus, événements, conseils, tout en temps réel sur tous vos écrans.</p>
+  <div class="hero-chips">
+    <div class="chip"><div class="chip-dot" style="background:#4ade80"></div>Mode affichage TV</div>
+    <div class="chip"><div class="chip-dot" style="background:#60a5fa"></div>Panneau admin</div>
+    <div class="chip"><div class="chip-dot" style="background:#f59e0b"></div>Mise à jour 60s</div>
+    <div class="chip"><div class="chip-dot" style="background:#a78bfa"></div>Responsive</div>
+  </div>
+
+  <div class="hero-mockup">
+    <div class="tv-frame">
+      <div class="tv-bar">
+        <div class="tv-dot" style="background:#FF5F57"></div>
+        <div class="tv-dot" style="background:#FEBC2E"></div>
+        <div class="tv-dot" style="background:#28C840"></div>
+        <div class="tv-url">scolactu.html — Lycée Victor Hugo</div>
+      </div>
+      <div class="tv-screen">
+        <div class="scr-top">
+          <div class="scr-brand">
+            <div class="scr-brand-icon">🏫</div>
+            <span class="scr-brand-name">Lycée Victor Hugo</span>
+          </div>
+          <div class="scr-clock" id="hero-clock">14:32</div>
+          <div class="scr-live"><div class="scr-live-dot"></div>En direct</div>
+        </div>
+        <div class="scr-main">
+          <div class="scr-slide">
+            <div class="scr-slide-emoji">🎉</div>
+            <div class="scr-slide-title">Portes ouvertes</div>
+            <div class="scr-slide-sub">Samedi 5 avril · 9h–17h</div>
+          </div>
+          <div class="scr-panel">
+            <div class="scr-card">
+              <div class="scr-card-lbl">🚫 Absences</div>
+              <div class="scr-row"><span class="scr-badge scr-badge-r">M. Martin</span><span class="scr-text">Maths · 14/03</span></div>
+              <div class="scr-row"><span class="scr-badge scr-badge-y">Mme Petit</span><span class="scr-text">Français · 15/03</span></div>
+            </div>
+            <div class="scr-card">
+              <div class="scr-card-lbl">🍽 Cantine</div>
+              <div class="scr-row"><span class="scr-badge scr-badge-g">Lun</span><span class="scr-text">Gratin dauphinois</span></div>
+              <div class="scr-row"><span class="scr-badge scr-badge-g">Mar</span><span class="scr-text">Poulet rôti</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="scr-ticker">
+          <div class="scr-ticker-txt">✦ Bienvenue au Lycée Victor Hugo &nbsp;&nbsp; ✦ Réunion parents-professeurs le 20 mars à 18h &nbsp;&nbsp; ✦ La bibliothèque ferme à 17h le vendredi &nbsp;&nbsp; ✦ Résultats bac blanc vendredi prochain &nbsp;&nbsp;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FONCTIONNALITÉS ═══ -->
+<section id="fonctionnalites">
+  <div class="max">
+    <div class="reveal">
+      <div class="s-eyebrow">Vue d'ensemble</div>
+      <h2 class="s-h2">9 sections pour couvrir<br><em>toute la vie scolaire</em></h2>
+      <p class="s-body">Scolactu centralise toutes les informations utiles de votre établissement dans une interface unique, pilotée en temps réel depuis n'importe quel appareil.</p>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card reveal reveal-d1">
+        <div class="feat-ico">🚫</div>
+        <div class="feat-title">Professeurs absents</div>
+        <div class="feat-desc">Affichez les absences avec date, matière, classes concernées et type de remplacement. Badge "Aujourd'hui" pour les absences du jour, date précise pour les absences à venir.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d2">
+        <div class="feat-ico">📅</div>
+        <div class="feat-title">Conseils de classe</div>
+        <div class="feat-desc">Planning des conseils par trimestre. Chaque entrée affiche la classe, la date, l'heure et la salle. Filtrés automatiquement pour n'afficher que les dates à venir.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d3">
+        <div class="feat-ico">🚌</div>
+        <div class="feat-title">Sorties scolaires</div>
+        <div class="feat-desc">Voyages et sorties pédagogiques avec destination, classes, accompagnateur et heure de départ. S'affichent jusqu'à la date de la sortie.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d1">
+        <div class="feat-ico">🎉</div>
+        <div class="feat-title">Événements</div>
+        <div class="feat-desc">Portes ouvertes, spectacles, conférences, réunions. Titre, date, heure, lieu et description longue. Filtrés sur les événements futurs.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d2">
+        <div class="feat-ico">🍽</div>
+        <div class="feat-title">Menu cantine</div>
+        <div class="feat-desc">Entrée, plat, accompagnement, fromage et dessert par jour. Fenêtre glissante de 14 jours. Le jour de la semaine est calculé sans décalage de fuseau horaire.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d3">
+        <div class="feat-ico">📢</div>
+        <div class="feat-title">Bandeau défilant</div>
+        <div class="feat-desc">Messages permanents en bas d'écran. Vitesse réglable (4 niveaux). Taille de texte personnalisable. La durée d'animation s'adapte à la longueur des messages.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d1">
+        <div class="feat-ico">🖼</div>
+        <div class="feat-title">Diaporama photos</div>
+        <div class="feat-desc">Images uploadées dans le cloud ou fonds colorés avec emoji. Défilement automatique toutes les 6 secondes. Aperçu vignette dans l'admin.</div>
+        <div class="feat-tag">Affichage + Admin</div>
+      </div>
+      <div class="feat-card reveal reveal-d2">
+        <div class="feat-ico">🎨</div>
+        <div class="feat-title">Thèmes d'affichage</div>
+        <div class="feat-desc">3 thèmes : sombre (bleu nuit), clair (blanc cassé) et couleur personnalisée. 7 presets + sélecteur libre. Persisté en base, appliqué instantanément.</div>
+        <div class="feat-tag">Réglages</div>
+      </div>
+      <div class="feat-card reveal reveal-d3">
+        <div class="feat-ico">🏫</div>
+        <div class="feat-title">Identité établissement</div>
+        <div class="feat-desc">Nom, sous-titre, logo (image ou emoji), adresse, téléphone, email, site, académie, code UAI. Aperçu en temps réel de l'en-tête pendant la saisie.</div>
+        <div class="feat-tag">Réglages</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ ADMINISTRATION ═══ -->
+<section class="admin-sec" id="administration">
+  <div class="max">
+    <div class="reveal">
+      <div class="s-eyebrow">Interface admin</div>
+      <h2 class="s-h2">Un panneau de contrôle<br><em>pensé pour le quotidien</em></h2>
+      <p class="s-body">Accessible depuis n'importe quel navigateur avec le mot de passe de l'établissement. Toute modification est répercutée sur les écrans en moins de 60 secondes.</p>
+    </div>
+    <div class="admin-split">
+      <!-- Mockup admin -->
+      <div class="admin-mockup reveal reveal-d1">
+        <div class="admin-mock-top">
+          <span class="admin-mock-title">⚙ Admin — Scolactu</span>
+          <span class="admin-mock-badge">Connecté</span>
+        </div>
+        <div class="admin-mock-body">
+          <div class="admin-mock-nav">
+            <div class="amn-lbl">Contenu</div>
+            <div class="amn-item act"><span>🚫</span>Profs absents</div>
+            <div class="amn-item"><span>📅</span>Conseils</div>
+            <div class="amn-item"><span>🚌</span>Sorties</div>
+            <div class="amn-item"><span>🎉</span>Événements</div>
+            <div class="amn-item"><span>🍽</span>Cantine</div>
+            <div class="amn-lbl">Affichage</div>
+            <div class="amn-item"><span>🖼</span>Diaporama</div>
+            <div class="amn-item"><span>📢</span>Bandeau</div>
+            <div class="amn-lbl">Réglages</div>
+            <div class="amn-item"><span>🏫</span>Établissement</div>
+          </div>
+          <div class="admin-mock-panel">
+            <div class="amp-title">Liste des absences</div>
+            <table class="amp-table">
+              <thead><tr><th>Professeur</th><th>Date</th><th>Statut</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>M. Martin</td><td>14/03</td><td><span class="amp-badge amp-badge-r">Annulé</span></td><td><div class="amp-btns"><button class="amp-btn amp-btn-edit">✏️</button><button class="amp-btn amp-btn-del">🗑</button></div></td></tr>
+                <tr><td>Mme Petit</td><td>15/03</td><td><span class="amp-badge amp-badge-g">Remplacé</span></td><td><div class="amp-btns"><button class="amp-btn amp-btn-edit">✏️</button><button class="amp-btn amp-btn-del">🗑</button></div></td></tr>
+                <tr><td>M. Dupont</td><td>18/03</td><td><span class="amp-badge" style="background:rgba(200,151,58,.2);color:#E8B84B;">À jour</span></td><td><div class="amp-btns"><button class="amp-btn amp-btn-edit">✏️</button><button class="amp-btn amp-btn-del">🗑</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Étapes -->
+      <div class="steps-list reveal reveal-d2">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Accéder à l'admin</div>
+            <div class="step-desc">Cliquez sur le bouton <strong style="color:white;">⚙ Admin</strong> en haut à droite de l'écran d'affichage. Saisissez le mot de passe (défaut : <code class="step-code">ecole2024</code>).</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Naviguer entre les sections</div>
+            <div class="step-desc">La barre latérale gauche liste toutes les sections. Sur mobile, un menu burger ☰ la fait glisser depuis le bord. Cliquez sur une section pour l'ouvrir.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Ajouter une entrée</div>
+            <div class="step-desc">Remplissez le formulaire en haut de chaque section et cliquez sur <strong style="color:var(--gold2);">➕ Ajouter</strong>. L'entrée apparaît immédiatement dans le tableau.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">Modifier une entrée</div>
+            <div class="step-desc">Cliquez sur <strong style="color:#60a5fa;">✏️</strong> sur n'importe quelle ligne — elle devient éditable en place. Enregistrez avec 💾 ou annulez avec ✕. Aucun rechargement de page.</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div>
+            <div class="step-title">L'écran se met à jour seul</div>
+            <div class="step-desc">L'affichage se rafraîchit automatiquement toutes les <strong style="color:white;">60 secondes</strong>. Vos modifications apparaissent sans aucune action supplémentaire.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DÉTAILS PAR SECTION ═══ -->
+<section class="detail-sec" id="details">
+  <div class="max">
+    <div class="reveal">
+      <div class="s-eyebrow">Sections en détail</div>
+      <h2 class="s-h2">Comment utiliser<br><em>chaque section</em></h2>
+    </div>
+
+    <!-- Absences -->
+    <div class="detail-grid reveal reveal-d1" style="margin-top:56px;">
+      <div class="detail-visual">
+        <div class="dv-emoji">🚫</div>
+        <div class="dv-tag">Affichage</div>
+        <div class="dv-title">Professeurs absents</div>
+        <ul class="dv-list">
+          <li>Badge "Aujourd'hui" en rouge pour les absences du jour</li>
+          <li>Date précise (jj/mm) pour les absences à venir</li>
+          <li>Matière · Classes · Type de remplacement</li>
+          <li>Titre dynamique : "2 aujourd'hui, 3 à venir"</li>
+        </ul>
+      </div>
+      <div class="detail-content">
+        <div class="s-eyebrow">Section absences</div>
+        <h3 class="s-h2">Profs absents</h3>
+        <p class="s-body">Signalez rapidement une absence avec toutes les informations utiles. Les élèves et les parents voient immédiatement qui est absent, quelle matière est concernée et comment le cours est géré.</p>
+        <div class="detail-how">
+          <h4>Comment ajouter une absence</h4>
+          <div class="how-step"><div class="how-num">1</div><div class="how-text">Dans l'admin, ouvrez <strong>🚫 Profs absents</strong></div></div>
+          <div class="how-step"><div class="how-num">2</div><div class="how-text">Renseignez <strong>Nom du professeur</strong> et <strong>Date</strong> (obligatoires)</div></div>
+          <div class="how-step"><div class="how-num">3</div><div class="how-text">Ajoutez optionnellement la matière, les classes et le type de remplacement (Annulé / Remplacé / Travail à faire…)</div></div>
+          <div class="how-step"><div class="how-num">4</div><div class="how-text">Cliquez <strong>➕ Ajouter</strong> — l'absence apparaît dans le tableau et sur l'écran au prochain rafraîchissement</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cantine -->
+    <div class="detail-grid reverse reveal reveal-d1" style="margin-top:48px;">
+      <div class="detail-visual" style="background:linear-gradient(160deg,#2A6B42,#0a1e10);">
+        <div class="dv-emoji">🍽</div>
+        <div class="dv-tag">Menu cantine</div>
+        <div class="dv-title">Menus de la semaine</div>
+        <ul class="dv-list">
+          <li>Fenêtre glissante de 14 jours</li>
+          <li>Entrée, plat, accompagnement, fromage, dessert</li>
+          <li>Jour de la semaine calculé précisément</li>
+          <li>Modification inline directement dans le tableau</li>
+        </ul>
+      </div>
+      <div class="detail-content">
+        <div class="s-eyebrow">Section cantine</div>
+        <h3 class="s-h2">Menu cantine</h3>
+        <p class="s-body">Renseignez les menus de la semaine une fois, ils s'affichent automatiquement sur l'écran. L'application n'affiche que les menus des 14 prochains jours.</p>
+        <div class="detail-how">
+          <h4>Comment ajouter un menu</h4>
+          <div class="how-step"><div class="how-num">1</div><div class="how-text">Ouvrez <strong>🍽 Menu cantine</strong> dans l'admin</div></div>
+          <div class="how-step"><div class="how-num">2</div><div class="how-text">Sélectionnez la <strong>date</strong> du repas</div></div>
+          <div class="how-step"><div class="how-num">3</div><div class="how-text">Remplissez les champs : entrée, plat, accompagnement, fromage, dessert (tous optionnels sauf la date)</div></div>
+          <div class="how-step"><div class="how-num">4</div><div class="how-text">Pour modifier un menu existant, cliquez sur <strong>✏️</strong> dans le tableau — les champs deviennent éditables en place</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bandeau -->
+    <div class="detail-grid reveal reveal-d1" style="margin-top:48px;">
+      <div class="detail-visual" style="background:linear-gradient(160deg,#4a2a10,#1e0e05);">
+        <div class="dv-emoji">📢</div>
+        <div class="dv-tag">Bandeau défilant</div>
+        <div class="dv-title">Messages permanents</div>
+        <ul class="dv-list">
+          <li>Plusieurs messages en rotation continue</li>
+          <li>4 vitesses : 🐢 Lent · ▶ Normal · ⏩ Rapide · 🚀 Très rapide</li>
+          <li>Taille de texte S / M / L / XL</li>
+          <li>Vitesse et taille sauvegardées en base</li>
+        </ul>
+      </div>
+      <div class="detail-content">
+        <div class="s-eyebrow">Section bandeau</div>
+        <h3 class="s-h2">Bandeau d'informations</h3>
+        <p class="s-body">Le bandeau doré en bas d'écran défile en permanence. Idéal pour les annonces récurrentes ou urgentes que tout le monde doit voir.</p>
+        <div class="detail-how">
+          <h4>Comment gérer le bandeau</h4>
+          <div class="how-step"><div class="how-num">1</div><div class="how-text">Ouvrez <strong>📢 Bandeau d'infos</strong> dans l'admin</div></div>
+          <div class="how-step"><div class="how-num">2</div><div class="how-text">Tapez votre message et cliquez <strong>➕ Ajouter</strong></div></div>
+          <div class="how-step"><div class="how-num">3</div><div class="how-text">Ajustez la <strong>taille du texte</strong> (S/M/L/XL) et la <strong>vitesse</strong> (🐢/▶/⏩/🚀) avec les boutons en haut du panel</div></div>
+          <div class="how-step"><div class="how-num">4</div><div class="how-text">Cliquez <strong>✏️</strong> pour modifier un message existant sans le supprimer et recréer</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Établissement -->
+    <div class="detail-grid reverse reveal reveal-d1" style="margin-top:48px;">
+      <div class="detail-visual" style="background:linear-gradient(160deg,#2a1a4a,#0e0818);">
+        <div class="dv-emoji">🏫</div>
+        <div class="dv-tag">Réglages</div>
+        <div class="dv-title">Identité & thème</div>
+        <ul class="dv-list">
+          <li>Nom, sous-titre, logo (image ou emoji)</li>
+          <li>Adresse, téléphone, email, site, académie, UAI</li>
+          <li>Aperçu de l'en-tête en temps réel pendant la saisie</li>
+          <li>Thèmes sombre / clair / couleur personnalisée</li>
+        </ul>
+      </div>
+      <div class="detail-content">
+        <div class="s-eyebrow">Section établissement</div>
+        <h3 class="s-h2">Réglages établissement</h3>
+        <p class="s-body">Personnalisez l'identité visuelle de votre tableau d'affichage et choisissez le thème qui correspond à l'ambiance de votre établissement.</p>
+        <div class="detail-how">
+          <h4>Configuration initiale recommandée</h4>
+          <div class="how-step"><div class="how-num">1</div><div class="how-text">Ouvrez <strong>🏫 Établissement</strong> dans l'admin</div></div>
+          <div class="how-step"><div class="how-num">2</div><div class="how-text">Renseignez le <strong>nom</strong> de l'établissement — il s'affiche en temps réel dans l'aperçu</div></div>
+          <div class="how-step"><div class="how-num">3</div><div class="how-text">Uploadez votre <strong>logo</strong> (JPG/PNG/SVG, max 2 Mo) ou choisissez un emoji représentatif</div></div>
+          <div class="how-step"><div class="how-num">4</div><div class="how-text">Choisissez un <strong>thème</strong> dans la section 🎨 — les changements sont immédiats sur l'écran</div></div>
+          <div class="how-step"><div class="how-num">5</div><div class="how-text">Cliquez <strong>💾 Enregistrer</strong> pour sauvegarder toutes les modifications</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TABLEAU RÉCAP ═══ -->
+<section class="recap-sec">
+  <div class="max">
+    <div class="reveal">
+      <div class="s-eyebrow">Référence rapide</div>
+      <h2 class="s-h2">Toutes les sections<br><em>en un coup d'œil</em></h2>
+    </div>
+    <div class="recap-table-wrap reveal reveal-d1">
+      <table class="recap-table">
+        <thead>
+          <tr>
+            <th>Section</th>
+            <th>Champs obligatoires</th>
+            <th>Champs optionnels</th>
+            <th>Filtre affichage</th>
+            <th>Visible sur</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🚫 Profs absents</td>
+            <td>Nom, Date</td>
+            <td>Matière, Classes, Remplacement</td>
+            <td>Date ≥ aujourd'hui</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>📅 Conseils de classe</td>
+            <td>Classe, Date, Trimestre</td>
+            <td>Heure, Salle</td>
+            <td>Date ≥ aujourd'hui</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>🚌 Sorties scolaires</td>
+            <td>Titre, Date</td>
+            <td>Classes, Lieu, Accompagnateur, Heure départ</td>
+            <td>Date ≥ aujourd'hui</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>🎉 Événements</td>
+            <td>Titre, Date</td>
+            <td>Heure, Lieu, Description</td>
+            <td>Date ≥ aujourd'hui</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>🍽 Menu cantine</td>
+            <td>Date</td>
+            <td>Entrée, Plat, Accomp., Fromage, Dessert</td>
+            <td>14 jours glissants</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>📢 Bandeau</td>
+            <td>Message</td>
+            <td>—</td>
+            <td>Toujours affiché</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>🖼 Diaporama</td>
+            <td>Titre</td>
+            <td>Sous-titre, Image, Couleur, Emoji</td>
+            <td>Tous les slides</td>
+            <td><span class="rt-badge rt-b-both">Écran + Admin</span></td>
+          </tr>
+          <tr>
+            <td>🎨 Thèmes</td>
+            <td>—</td>
+            <td>Sombre / Clair / Couleur custom</td>
+            <td>Appliqué immédiatement</td>
+            <td><span class="rt-badge rt-b-display">Écran uniquement</span></td>
+          </tr>
+          <tr>
+            <td>🏫 Établissement</td>
+            <td>—</td>
+            <td>Nom, Logo, Sous-titre, Adresse, UAI…</td>
+            <td>En-tête de l'écran</td>
+            <td><span class="rt-badge rt-b-admin">Admin → Écran</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ THÈMES ═══ -->
+<section class="themes-sec">
+  <div class="max">
+    <div class="reveal">
+      <div class="s-eyebrow">Personnalisation</div>
+      <h2 class="s-h2">Trois thèmes pour<br><em>chaque ambiance</em></h2>
+      <p class="s-body">Changez l'apparence complète de l'écran d'affichage depuis l'onglet Établissement. Le changement est immédiat et persisté en base de données.</p>
+    </div>
+    <div class="themes-grid">
+      <div class="theme-card reveal reveal-d1">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#162a5a,#0a1628);">
+          <div class="tp-bar" style="background:rgba(26,58,107,.9);border-bottom:2px solid #E8B84B;"></div>
+          <div class="tp-body">
+            <div class="tp-slide" style="background:linear-gradient(135deg,#1a3a6b,#06090F);"></div>
+            <div class="tp-panel" style="background:rgba(10,22,40,.6);"></div>
+          </div>
+          <div class="tp-ticker" style="background:rgba(232,184,75,.15);"></div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">🌙 Thème sombre</div>
+          <div class="theme-desc">Bleu nuit profond, accents dorés. Idéal pour les couloirs sombres ou les TV éloignées des fenêtres. Thème par défaut.</div>
+        </div>
+      </div>
+      <div class="theme-card reveal reveal-d2">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#d4e4fa,#f0f4fa);">
+          <div class="tp-bar" style="background:rgba(255,255,255,.97);border-bottom:2px solid #E8B84B;"></div>
+          <div class="tp-body">
+            <div class="tp-slide" style="background:linear-gradient(135deg,#4a7abd,#2a5090);"></div>
+            <div class="tp-panel" style="background:rgba(240,244,250,.92);"></div>
+          </div>
+          <div class="tp-ticker" style="background:rgba(232,184,75,.2);"></div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">☀️ Thème clair</div>
+          <div class="theme-desc">Fond blanc cassé, textes sombres. Parfait pour les espaces lumineux, les halls d'entrée baignés de lumière naturelle.</div>
+        </div>
+      </div>
+      <div class="theme-card reveal reveal-d3">
+        <div class="theme-preview" style="background:linear-gradient(135deg,#2a4a1a,#0e1a08);">
+          <div class="tp-bar" style="background:rgba(0,0,0,.4);border-bottom:2px solid #E8B84B;"></div>
+          <div class="tp-body">
+            <div class="tp-slide" style="background:rgba(0,0,0,.3);"></div>
+            <div class="tp-panel" style="background:rgba(42,74,26,.5);"></div>
+          </div>
+          <div class="tp-ticker" style="background:rgba(232,184,75,.15);"></div>
+        </div>
+        <div class="theme-info">
+          <div class="theme-name">🎨 Couleur personnalisée</div>
+          <div class="theme-desc">7 presets (forêt, bordeaux, marine, violet, bois, teal, anthracite) ou n'importe quelle couleur via le sélecteur libre.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPATIBILITÉ ═══ -->
+<section>
+  <div class="max">
+    <div class="reveal">
+      <div class="s-eyebrow">Déploiement</div>
+      <h2 class="s-h2">Fonctionne sur<br><em>n'importe quel écran</em></h2>
+      <p class="s-body">Aucun boîtier propriétaire, aucun logiciel à installer. Un navigateur moderne suffit pour afficher Scolactu.</p>
+    </div>
+    <div class="compat-grid">
+      <div class="compat-card reveal reveal-d1">
+        <div class="compat-ico">📺</div>
+        <div class="compat-name">Smart TV</div>
+        <div class="compat-desc">Samsung, LG, Sony — tout écran avec navigateur intégré Chrome ou WebKit</div>
+      </div>
+      <div class="compat-card reveal reveal-d2">
+        <div class="compat-ico">🔌</div>
+        <div class="compat-name">Chromecast / Fire Stick</div>
+        <div class="compat-desc">Projetez l'onglet depuis un PC ou utilisez le navigateur intégré</div>
+      </div>
+      <div class="compat-card reveal reveal-d3">
+        <div class="compat-ico">🫐</div>
+        <div class="compat-name">Raspberry Pi</div>
+        <div class="compat-desc">Mode kiosk avec Chromium — solution autonome et économique</div>
+      </div>
+      <div class="compat-card reveal reveal-d4">
+        <div class="compat-ico">📱</div>
+        <div class="compat-name">Tablette / Mobile</div>
+        <div class="compat-desc">Interface responsive — admin accessible depuis smartphone ou tablette</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ DÉMARRAGE RAPIDE ═══ -->
+<section class="start-sec" id="demarrage">
+  <div class="max" style="position:relative;z-index:1;">
+    <div class="reveal">
+      <div class="s-eyebrow" style="color:var(--gold2);"><span style="background:var(--gold2);display:block;width:20px;height:1px;"></span>Démarrage rapide</div>
+      <h2 class="s-h2" style="color:white;">Prêt à utiliser<br><em>en quelques clics</em></h2>
+      <p class="s-body" style="color:rgba(255,255,255,.55);">Aucune installation requise — ouvrez l'application dans votre navigateur et commencez immédiatement.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:32px;margin-top:56px;position:relative;z-index:1;">
+      <!-- Étapes -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;width:100%;">
+        <div class="start-card reveal reveal-d1">
+          <div class="start-card-title"><div class="start-card-num">1</div>Ouvrez l'application</div>
+          <div class="start-steps">
+            <div class="ss-item"><div class="ss-dot"></div><div>Rendez-vous sur <strong style="color:white;">scolactu.web.app</strong> depuis n'importe quel navigateur</div></div>
+            <div class="ss-item"><div class="ss-dot"></div><div>L'écran d'affichage s'affiche immédiatement — aucune installation requise</div></div>
+          </div>
+        </div>
+        <div class="start-card reveal reveal-d2">
+          <div class="start-card-title"><div class="start-card-num">2</div>Accédez à l'admin</div>
+          <div class="start-steps">
+            <div class="ss-item"><div class="ss-dot"></div><div>Cliquez sur <strong style="color:var(--gold2);">⚙ Admin</strong> en haut à droite</div></div>
+            <div class="ss-item"><div class="ss-dot"></div><div>Mot de passe par défaut : <div class="ss-code">ecole2024</div></div></div>
+          </div>
+        </div>
+        <div class="start-card reveal reveal-d3">
+          <div class="start-card-title"><div class="start-card-num">3</div>Configurez votre école</div>
+          <div class="start-steps">
+            <div class="ss-item"><div class="ss-dot"></div><div>Allez dans <strong style="color:white;">🏫 Établissement</strong> pour renseigner le nom et le logo</div></div>
+            <div class="ss-item"><div class="ss-dot"></div><div>Choisissez votre thème d'affichage (sombre, clair ou couleur)</div></div>
+          </div>
+        </div>
+        <div class="start-card reveal reveal-d4">
+          <div class="start-card-title"><div class="start-card-num">4</div>Ajoutez du contenu</div>
+          <div class="start-steps">
+            <div class="ss-item"><div class="ss-dot"></div><div>Absences, menus, événements — remplissez les sections depuis le panneau admin</div></div>
+            <div class="ss-item"><div class="ss-dot"></div><div>Tout s'affiche sur l'écran en <strong style="color:var(--gold2);">moins de 60 secondes</strong></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Gros CTA -->
+      <a href="https://scolactu.web.app" target="_blank" rel="noopener" class="reveal reveal-d3" style="
+        display:inline-flex;align-items:center;gap:12px;
+        background:var(--gold);color:var(--ink);
+        padding:18px 48px;border-radius:14px;
+        font-weight:800;font-size:1.15rem;text-decoration:none;
+        box-shadow:0 6px 32px rgba(200,151,58,.4);
+        transition:transform .2s,box-shadow .2s;
+        margin-top:8px;
+      " onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 40px rgba(200,151,58,.5)'" onmouseout="this.style.transform='';this.style.boxShadow='0 6px 32px rgba(200,151,58,.4)'">
+        🏫 Accéder à Scolactu →
+      </a>
+      <p style="font-size:.8rem;color:rgba(255,255,255,.3);margin-top:-16px;">scolactu.web.app</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div>
+    <div class="footer-brand"><div class="footer-brand-icon">🏫</div>Scolactu</div>
+    <p class="footer-desc">Application de tableau d'affichage numérique pour les établissements scolaires. Absences, menus, événements et bien plus — en temps réel sur tous vos écrans.</p>
+  </div>
+  <div class="footer-col">
+    <h5>Sections</h5>
+    <a href="#fonctionnalites">Vue d'ensemble</a>
+    <a href="#administration">Administration</a>
+    <a href="#details">Sections en détail</a>
+    <a href="#demarrage">Démarrage rapide</a>
+  </div>
+  <div class="footer-col">
+    <h5>Application</h5>
+    <a href="https://scolactu.web.app" target="_blank" rel="noopener">🏫 Ouvrir Scolactu</a>
+    <a href="https://scolactu.web.app" target="_blank" rel="noopener">scolactu.web.app</a>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <span>© 2026 Scolactu</span>
+  <span>Fichier unique · Sans dépendances front · Rafraîchissement auto 60s</span>
+</div>
+
+<script>
+// Horloge hero
+function tick(){
+  const n=new Date();
+  const el=document.getElementById('hero-clock');
+  if(el) el.textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+}
+tick(); setInterval(tick,10000);
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
