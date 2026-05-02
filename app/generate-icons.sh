@@ -47,10 +47,12 @@ if [ -d "android/app/src/main/res" ]; then
     DIR="android/app/src/main/res/$FOLDER"
     $IMG "$SRC" -resize ${SIZE}x${SIZE} "$DIR/ic_launcher.png"
     $IMG "$SRC" -resize ${SIZE}x${SIZE} "$DIR/ic_launcher_round.png"
-    # Foreground avec padding 25% (zone safe pour icône adaptative)
-    PAD=$(( SIZE * 25 / 100 ))
-    $IMG "$SRC" -resize ${SIZE}x${SIZE} \
-      -gravity center -extent ${SIZE}x${SIZE} \
+    # Foreground icône adaptative : canvas 108dp (SIZE*9/4), contenu dans la safe zone 72dp (SIZE*3/2)
+    ADAPTIVE_SIZE=$(( SIZE * 9 / 4 ))
+    CONTENT_SIZE=$(( SIZE * 3 / 2 ))
+    $IMG "$SRC" -resize ${CONTENT_SIZE}x${CONTENT_SIZE} \
+      -gravity center -background none \
+      -extent ${ADAPTIVE_SIZE}x${ADAPTIVE_SIZE} \
       "$DIR/ic_launcher_foreground.png"
   done
   echo "✓ Icônes Android générées"
