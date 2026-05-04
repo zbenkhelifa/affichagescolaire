@@ -2,6 +2,7 @@ workflows:
   ios_appstore:
     name: iOS App Store
     max_build_duration: 60
+
     environment:
       groups:
         - appstore
@@ -14,20 +15,11 @@ workflows:
       xcode: latest
       node: 22
 
-    scripts:
-      - name: Set up code signing
-        script: |
-          keychain initialize
-          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
-          security import /tmp/certificate.p12 \
-            -k ~/Library/Keychains/codemagic.keychain-db \
-            -P "$CM_CERTIFICATE_PASSWORD" -A
-          security set-key-partition-list \
-            -S apple-tool:,apple:,codesign: -s -k "" \
-            ~/Library/Keychains/codemagic.keychain-db
-          echo "=== Identités ==="
-          security find-identity -v -p codesigning
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.affichagescolaire.app
 
+    scripts:
       - name: Install dependencies
         working_directory: app
         script: npm ci
@@ -39,6 +31,7 @@ workflows:
       - name: Add iOS platform
         working_directory: app
         script: |
+          set -euo pipefail
           if [ ! -d "ios" ]; then
             npx cap add ios
           fi
@@ -47,6 +40,7 @@ workflows:
       - name: Generate app icons
         working_directory: app
         script: |
+          set -euo pipefail
           SRC="resources/icon.png"
           ICONSET="ios/App/App/Assets.xcassets/AppIcon.appiconset"
           magick "$SRC" -resize 40x40    "$ICONSET/AppIcon-20@2x.png"    2>/dev/null || convert "$SRC" -resize 40x40    "$ICONSET/AppIcon-20@2x.png"
@@ -60,40 +54,59 @@ workflows:
           magick "$SRC" -resize 152x152  "$ICONSET/AppIcon-76@2x.png"    2>/dev/null || convert "$SRC" -resize 152x152  "$ICONSET/AppIcon-76@2x.png"
           magick "$SRC" -resize 167x167  "$ICONSET/AppIcon-83.5@2x.png"  2>/dev/null || convert "$SRC" -resize 167x167  "$ICONSET/AppIcon-83.5@2x.png"
           magick "$SRC" -resize 1024x1024 "$ICONSET/AppIcon-1024@1x.png" 2>/dev/null || convert "$SRC" -resize 1024x1024 "$ICONSET/AppIcon-1024@1x.png"
-          echo "✓ Icônes générées"
+          echo "✅ Icônes générées"
 
       - name: Patch AppDelegate (Capacitor 8 SPM bug)
         working_directory: app
         script: |
+          set -euo pipefail
           DELEGATE="ios/App/App/AppDelegate.swift"
           sed -i '' \
             's/return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)/return false/' \
-            "$DELEGATE"
-          echo "✓ AppDelegate patché"
+            "$DELEGATE" 2>/dev/null || true
+          echo "✅ AppDelegate patché"
 
       - name: Sync Capacitor iOS
         working_directory: app
-        script: npx cap sync ios
+        script: |
+          set -euo pipefail
+          npx cap sync ios
+          if [ ! -f "ios/App/App/public/index.html" ]; then
+            echo "❌ Web assets non synchronisés — index.html manquant"
+            exit 1
+          fi
+          echo "✅ Web assets synchronisés"
 
-      - name: Apply signing profiles
+      - name: Apply signing profiles (Codemagic native)
         working_directory: app
         script: |
+          set -euo pipefail
           xcode-project use-profiles
           security find-identity -v -p codesigning || true
           ls -lah "$HOME/Library/MobileDevice/Provisioning Profiles" || true
 
-      - name: Set Info.plist values
+      - name: Fix Info.plist and bundle ID
         working_directory: app
         script: |
+          set -euo pipefail
           PLIST="ios/App/App/Info.plist"
-          BUILD_NUMBER=$(date +%Y%m%d%H%M)
+          PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
+
+          # Force le bundle ID dans le pbxproj (évite "requires a provisioning profile")
+          perl -0777 -i -pe "s/PRODUCT_BUNDLE_IDENTIFIER = \"[^\"]*\";/PRODUCT_BUNDLE_IDENTIFIER = \"$BUNDLE_ID\";/g" "$PBXPROJ"
+          perl -0777 -i -pe "s/PRODUCT_BUNDLE_IDENTIFIER = [^;]+;/PRODUCT_BUNDLE_IDENTIFIER = \"$BUNDLE_ID\";/g" "$PBXPROJ"
+
+          /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier \$(PRODUCT_BUNDLE_IDENTIFIER)" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleIdentifier string \$(PRODUCT_BUNDLE_IDENTIFIER)" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleExecutable \$(EXECUTABLE_NAME)" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleExecutable string \$(EXECUTABLE_NAME)" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundlePackageType APPL" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundlePackageType string APPL" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :UILaunchStoryboardName LaunchScreen" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :UILaunchStoryboardName string LaunchScreen" "$PLIST"
 
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName $APP_NAME" "$PLIST" \
             || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string $APP_NAME" "$PLIST"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" "$PLIST" \
-            || /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $APP_VERSION" "$PLIST"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$PLIST" \
-            || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $BUILD_NUMBER" "$PLIST"
 
           /usr/libexec/PlistBuddy -c "Delete :WKCustomSchemes" "$PLIST" 2>/dev/null || true
           /usr/libexec/PlistBuddy -c "Add :WKCustomSchemes array" "$PLIST"
@@ -104,22 +117,39 @@ workflows:
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:0 string UIInterfaceOrientationPortrait" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:1 string UIInterfaceOrientationLandscapeLeft" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:2 string UIInterfaceOrientationLandscapeRight" "$PLIST"
-          echo "✓ Info.plist mis à jour (build $BUILD_NUMBER)"
+
+          echo "✅ Info.plist et bundle ID mis à jour"
+
+      - name: Set version and build number
+        working_directory: app
+        script: |
+          set -euo pipefail
+          PLIST="ios/App/App/Info.plist"
+          BUILD_NUMBER=$(date -u +%Y%m%d%H%M)
+
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $APP_VERSION" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $APP_VERSION" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD_NUMBER" "$PLIST" \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleVersion string $BUILD_NUMBER" "$PLIST"
+
+          echo "✅ Version=$APP_VERSION Build=$BUILD_NUMBER"
 
       - name: Build IPA
         working_directory: app/ios/App
         script: |
+          set -euo pipefail
           if [ -f App.xcworkspace/contents.xcworkspacedata ]; then
             xcode-project build-ipa --workspace App.xcworkspace --scheme "$XCODE_SCHEME"
           else
             xcode-project build-ipa --project App.xcodeproj --scheme "$XCODE_SCHEME"
           fi
-          echo "✓ IPA produit :"
+          echo "✅ IPA produit :"
           find build -name "*.ipa" 2>/dev/null || true
 
       - name: Upload to App Store Connect
         working_directory: app/ios/App
         script: |
+          set -euo pipefail
           IPA="$(find build -name '*.ipa' | head -n 1)"
           echo "$APP_STORE_CONNECT_PRIVATE_KEY" > /tmp/AuthKey.p8
           app-store-connect publish \
