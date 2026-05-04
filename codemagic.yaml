@@ -69,7 +69,7 @@ workflows:
         working_directory: app
         script: |
           set -euo pipefail
-          SRC="logo.png"
+          SRC="../icon.png"
           ICONSET="ios/App/App/Assets.xcassets/AppIcon.appiconset"
           magick "$SRC" -resize 40x40    "$ICONSET/AppIcon-20@2x.png"    2>/dev/null || convert "$SRC" -resize 40x40    "$ICONSET/AppIcon-20@2x.png"
           magick "$SRC" -resize 60x60    "$ICONSET/AppIcon-20@3x.png"    2>/dev/null || convert "$SRC" -resize 60x60    "$ICONSET/AppIcon-20@3x.png"
