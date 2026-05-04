@@ -33,9 +33,11 @@ workflows:
             echo "❌ CM_PROVISIONING_PROFILE est vide — ajoute-la dans le groupe appstore sur Codemagic"
             exit 1
           fi
-          echo "$CM_PROVISIONING_PROFILE" | base64 --decode > /tmp/profile.mobileprovision
+          echo "--- longueur CM_PROVISIONING_PROFILE : ${#CM_PROVISIONING_PROFILE} caractères"
+          printf '%s' "$CM_PROVISIONING_PROFILE" | base64 --decode > /tmp/profile.mobileprovision
+          echo "--- taille profile.mobileprovision : $(wc -c < /tmp/profile.mobileprovision) octets"
           if [ ! -s /tmp/profile.mobileprovision ]; then
-            echo "❌ Décodage base64 échoué — vérifie que CM_PROVISIONING_PROFILE est bien encodée en base64"
+            echo "❌ Décodage base64 échoué — fichier vide après décodage"
             exit 1
           fi
           UUID=$(security cms -D -i /tmp/profile.mobileprovision \
