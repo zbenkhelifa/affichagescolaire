@@ -79,3 +79,13 @@ app/android/
 
 # Local env
 *.local
+
+# Certificats et clés — ne jamais commiter
+*.p12
+*.p8
+*.key
+*.cer
+*.pem
+*.mobileprovision
+*.certSigningRequest
+*.b64
