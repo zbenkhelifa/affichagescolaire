@@ -179,7 +179,7 @@ workflows:
         script: |
           set -euo pipefail
           IPA="$(find build -name '*.ipa' | head -n 1)"
-          echo "$APP_STORE_CONNECT_PRIVATE_KEY" > /tmp/AuthKey.p8
+          printf '%s' "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 --decode > /tmp/AuthKey.p8
           app-store-connect publish \
             --path "$IPA" \
             --key-id "$APP_STORE_CONNECT_KEY_IDENTIFIER" \
