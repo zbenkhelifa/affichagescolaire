@@ -5,9 +5,6 @@ workflows:
     environment:
       groups:
         - appstore
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.affichagescolaire.app
       vars:
         BUNDLE_ID: com.affichagescolaire.app
         APP_NAME: "Affichage Scolaire"
@@ -18,8 +15,20 @@ workflows:
       xcode: latest
       node: 22
     scripts:
-      - name: Install provisioning profile
+      - name: Set up code signing
         script: |
+          # Keychain via CLI Codemagic (compatible free plan)
+          keychain initialize
+          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+          security import /tmp/certificate.p12 \
+            -k ~/Library/Keychains/codemagic.keychain-db \
+            -P "$CM_CERTIFICATE_PASSWORD" -A
+          security set-key-partition-list \
+            -S apple-tool:,apple:,codesign: -s -k "" \
+            ~/Library/Keychains/codemagic.keychain-db
+          echo "=== Identités ==="
+          security find-identity -v -p codesigning
+          # Provisioning profile
           echo $CM_PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
           PROFILE_DATA=$(security cms -D -i /tmp/profile.mobileprovision)
           UUID=$(echo "$PROFILE_DATA" | python3 -c "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); print(d['UUID'])")
@@ -30,7 +39,7 @@ workflows:
           echo "$UUID" > /tmp/PROFILE_UUID
           echo "$TEAM_ID" > /tmp/TEAM_ID
           echo "$PROFILE_NAME" > /tmp/PROFILE_NAME
-          echo "✓ Profil installé (Team: $TEAM_ID, Profile: $PROFILE_NAME)"
+          echo "✓ Signing prêt (Team: $TEAM_ID, Profile: $PROFILE_NAME)"
 
       - name: Install dependencies
         working_directory: app
