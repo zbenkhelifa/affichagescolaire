@@ -75,8 +75,8 @@ export const sb = {
     return r.json();
   },
 
-  async lookupByDisplayCode(code: string): Promise<string | null> {
-    const url = `${SUPABASE_URL}/rest/v1/school_settings?display_code=eq.${encodeURIComponent(code.toUpperCase())}&select=school_id`;
+  async lookupByDisplayCode(uai: string, code: string): Promise<string | null> {
+    const url = `${SUPABASE_URL}/rest/v1/school_settings?uai=eq.${encodeURIComponent(uai.toUpperCase())}&display_code=eq.${encodeURIComponent(code.toUpperCase())}&select=school_id`;
     const r = await fetch(url, {
       headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
     });

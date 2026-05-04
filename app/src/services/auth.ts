@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_KEY, setSession, clearSession } from './supabase';
+import { SUPABASE_URL, SUPABASE_KEY, setSession, clearSession, sb } from './supabase';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
@@ -17,12 +17,13 @@ export const auth = {
     return { id: data.user.id, email: data.user.email! };
   },
 
-  async signUp(email: string, password: string): Promise<AuthUser> {
+  async signUp(email: string, password: string, schoolName: string, uai: string): Promise<AuthUser> {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw new Error(error.message);
     if (!data.user) throw new Error("Inscription échouée.");
     if (!data.session) throw new Error("CONFIRM_EMAIL");
     setSession(data.session.access_token, data.user.id);
+    await sb.upsert('school_settings', { name: schoolName, uai: uai.toUpperCase(), logo: '🏫', subtitle: '' } as any);
     return { id: data.user.id, email: data.user.email! };
   },
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LogIn, UserPlus, Mail, Lock, Eye, EyeOff, Building2, Monitor, Hash } from 'lucide-react';
+import { LogIn, UserPlus, Mail, Lock, Eye, EyeOff, Building2, Monitor, Hash, School } from 'lucide-react';
 import { auth, AuthUser } from '../services/auth';
 import { sb } from '../services/supabase';
 
@@ -15,7 +15,10 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [schoolName, setSchoolName] = useState('');
+  const [uai, setUai] = useState('');
   const [code, setCode] = useState('');
+  const [codeUai, setCodeUai] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,17 +38,20 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
     setPassword('');
     setConfirm('');
     setCode('');
+    setCodeUai('');
+    setSchoolName('');
+    setUai('');
   };
 
   const handleCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code.trim()) return;
+    if (!codeUai.trim() || !code.trim()) return;
     setLoading(true);
     setError('');
     try {
-      const schoolId = await sb.lookupByDisplayCode(code.trim());
+      const schoolId = await sb.lookupByDisplayCode(codeUai.trim(), code.trim());
       if (!schoolId) {
-        setError('Code incorrect. Vérifiez le code fourni par votre établissement.');
+        setError('UAI ou code incorrect. Vérifiez les informations fournies par votre établissement.');
         return;
       }
       onDisplayCode(schoolId);
@@ -74,7 +80,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
     try {
       const user = tab === 'login'
         ? await auth.signIn(email, password)
-        : await auth.signUp(email, password);
+        : await auth.signUp(email, password, schoolName, uai);
       onAuth(user);
     } catch (err: any) {
       const msg: string = err.message ?? '';
@@ -185,6 +191,39 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
                     />
                   </div>
 
+                  {tab === 'register' && (
+                    <>
+                      <div className="relative">
+                        <School className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={schoolName}
+                          onChange={e => { setSchoolName(e.target.value); setError(''); }}
+                          placeholder="Nom de l'établissement"
+                          required
+                          className={`w-full pl-10 pr-4 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors`}
+                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                          onFocus={e => e.target.style.borderColor = 'rgba(232,184,75,0.4)'}
+                          onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                        />
+                      </div>
+                      <div className="relative">
+                        <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
+                        <input
+                          type="text"
+                          value={uai}
+                          onChange={e => { setUai(e.target.value.toUpperCase()); setError(''); }}
+                          placeholder="Code UAI (ex : 0594946A)"
+                          required
+                          className={`w-full pl-10 pr-4 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors font-mono tracking-wider`}
+                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                          onFocus={e => e.target.style.borderColor = 'rgba(232,184,75,0.4)'}
+                          onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                        />
+                      </div>
+                    </>
+                  )}
+
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
                     <input
@@ -224,6 +263,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
                     </div>
                   )}
 
+
                   {error && (
                     <div className="p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}>
                       <span className="text-red-400 text-xs">{error}</span>
@@ -237,7 +277,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
 
                   <button
                     type="submit"
-                    disabled={loading || !email || !password || (tab === 'register' && !confirm)}
+                    disabled={loading || !email || !password || (tab === 'register' && (!confirm || !schoolName || !uai))}
                     className={`w-full ${isPortrait ? 'py-2' : 'py-3'} rounded-xl font-syne font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                     style={{ background: 'linear-gradient(135deg, #e8b84b, #d4a030)', color: '#0a1628' }}
                   >
@@ -265,12 +305,27 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
                 )}
 
                 <div className="relative">
+                  <School className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={codeUai}
+                    onChange={e => { setCodeUai(e.target.value.toUpperCase()); setError(''); }}
+                    placeholder="Code UAI (ex : 0594946A)"
+                    required
+                    className={`w-full pl-10 pr-4 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors font-mono tracking-wider`}
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                    onFocus={e => e.target.style.borderColor = 'rgba(74,222,128,0.4)'}
+                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                  />
+                </div>
+
+                <div className="relative">
                   <Hash className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
                   <input
                     type="text"
                     value={code}
                     onChange={e => { setCode(e.target.value.toUpperCase()); setError(''); }}
-                    placeholder="Ex : A1B2C3"
+                    placeholder="Code d'affichage (ex : A1B2C3)"
                     maxLength={8}
                     required
                     className={`w-full pl-10 pr-4 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors font-mono tracking-widest text-center`}
@@ -288,7 +343,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
 
                 <button
                   type="submit"
-                  disabled={loading || !code.trim()}
+                  disabled={loading || !codeUai.trim() || !code.trim()}
                   className={`w-full ${isPortrait ? 'py-2' : 'py-3'} rounded-xl font-syne font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                   style={{ background: 'linear-gradient(135deg, #4ade80, #22c55e)', color: '#0a1628' }}
                 >
