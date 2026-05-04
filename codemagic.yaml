@@ -40,8 +40,9 @@ workflows:
             echo "❌ Décodage base64 échoué — fichier vide après décodage"
             exit 1
           fi
-          UUID=$(security cms -D -i /tmp/profile.mobileprovision \
-            | /usr/libexec/PlistBuddy -c 'Print :UUID' /dev/stdin)
+          UUID=$(grep -aEo '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}' \
+            /tmp/profile.mobileprovision | head -1)
+          echo "--- UUID extrait : $UUID"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           cp /tmp/profile.mobileprovision \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
