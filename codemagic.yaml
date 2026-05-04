@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 60
     environment:
       groups:
-        - ios
+        - appstore
       vars:
         BUNDLE_ID: com.affichagescolaire.app
         APP_NAME: "Affichage Scolaire"
