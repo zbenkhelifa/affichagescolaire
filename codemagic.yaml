@@ -5,6 +5,9 @@ workflows:
     environment:
       groups:
         - appstore
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.affichagescolaire.app
       vars:
         BUNDLE_ID: com.affichagescolaire.app
         APP_NAME: "Affichage Scolaire"
@@ -15,22 +18,8 @@ workflows:
       xcode: latest
       node: 22
     scripts:
-      - name: Set up code signing
+      - name: Install provisioning profile
         script: |
-          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
-          KEYCHAIN_PATH="$HOME/Library/Keychains/build.keychain-db"
-          KEYCHAIN_PASS=$(openssl rand -hex 20)
-          echo "$KEYCHAIN_PATH" > /tmp/KEYCHAIN_PATH
-          echo "$KEYCHAIN_PASS" > /tmp/KEYCHAIN_PASS
-          security create-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
-          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed s/\"//g)
-          security import /tmp/certificate.p12 -k "$KEYCHAIN_PATH" -P "$CM_CERTIFICATE_PASSWORD" -A
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
-          echo "=== Identités disponibles ==="
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-          # Provisioning profile
           echo $CM_PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
           PROFILE_DATA=$(security cms -D -i /tmp/profile.mobileprovision)
           UUID=$(echo "$PROFILE_DATA" | python3 -c "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); print(d['UUID'])")
@@ -41,7 +30,7 @@ workflows:
           echo "$UUID" > /tmp/PROFILE_UUID
           echo "$TEAM_ID" > /tmp/TEAM_ID
           echo "$PROFILE_NAME" > /tmp/PROFILE_NAME
-          echo "✓ Signing configuré (Team: $TEAM_ID, Profile: $PROFILE_NAME)"
+          echo "✓ Profil installé (Team: $TEAM_ID, Profile: $PROFILE_NAME)"
 
       - name: Install dependencies
         working_directory: app
@@ -123,67 +112,32 @@ workflows:
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:1 string UIInterfaceOrientationLandscapeLeft" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :UISupportedInterfaceOrientations:2 string UIInterfaceOrientationLandscapeRight" "$PLIST"
 
-      - name: Build IPA
+      - name: Patch xcodeproj signing
         working_directory: app
         script: |
           UUID=$(cat /tmp/PROFILE_UUID)
           TEAM_ID=$(cat /tmp/TEAM_ID)
           PROFILE_NAME=$(cat /tmp/PROFILE_NAME)
-          KEYCHAIN_PATH=$(cat /tmp/KEYCHAIN_PATH)
-          KEYCHAIN_PASS=$(cat /tmp/KEYCHAIN_PASS)
-          # Re-unlock le keychain
-          security unlock-keychain -p "$KEYCHAIN_PASS" "$KEYCHAIN_PATH"
-          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed s/\"//g)
-          echo "=== Identités disponibles au moment du build ==="
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-          mkdir -p build/ios/ipa
+          PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
+          # Passer en signing manuel avec le bon profil
+          sed -i '' "s/DEVELOPMENT_TEAM = \"\";/DEVELOPMENT_TEAM = $TEAM_ID;/g" "$PBXPROJ"
+          sed -i '' "s/DEVELOPMENT_TEAM = [A-Z0-9]*;/DEVELOPMENT_TEAM = $TEAM_ID;/g" "$PBXPROJ"
+          sed -i '' "s/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g" "$PBXPROJ"
+          sed -i '' "s/PROVISIONING_PROFILE_SPECIFIER = \"\";/PROVISIONING_PROFILE_SPECIFIER = \"$PROFILE_NAME\";/g" "$PBXPROJ"
+          echo "✓ xcodeproj patché (Team: $TEAM_ID, Profile: $PROFILE_NAME)"
 
-          # Archive
+      - name: Build IPA
+        working_directory: app
+        script: |
           if [ -d "ios/App/App.xcworkspace" ]; then
-            PROJ_FLAG="-workspace ios/App/App.xcworkspace"
+            xcode-project build-ipa \
+              --workspace ios/App/App.xcworkspace \
+              --scheme "$XCODE_SCHEME"
           else
-            PROJ_FLAG="-project ios/App/App.xcodeproj"
+            xcode-project build-ipa \
+              --project ios/App/App.xcodeproj \
+              --scheme "$XCODE_SCHEME"
           fi
-          xcodebuild archive \
-            $PROJ_FLAG \
-            -scheme "$XCODE_SCHEME" \
-            -configuration Release \
-            -archivePath build/ios/App.xcarchive \
-            CODE_SIGN_STYLE=Manual \
-            "CODE_SIGN_IDENTITY=Apple Distribution" \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            PROVISIONING_PROFILE="$UUID" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
-            COMPILER_INDEX_STORE_ENABLE=NO
-
-          # Export options
-          cat > /tmp/export_options.plist << PLIST
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>app-store</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>teamID</key>
-              <string>$TEAM_ID</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>$BUNDLE_ID</key>
-                  <string>$PROFILE_NAME</string>
-              </dict>
-          </dict>
-          </plist>
-          PLIST
-
-          # Export IPA
-          xcodebuild -exportArchive \
-            -archivePath build/ios/App.xcarchive \
-            -exportPath build/ios/ipa \
-            -exportOptionsPlist /tmp/export_options.plist
 
       - name: Verify IPA contents
         working_directory: app
@@ -206,9 +160,9 @@ workflows:
 
 
     artifacts:
-      - app/build/ios/ipa/*.ipa
-      - app/build/ios/*.xcarchive
+      - app/ios/build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - app/ios/App/*.xcarchive
 
     publishing:
       app_store_connect:
