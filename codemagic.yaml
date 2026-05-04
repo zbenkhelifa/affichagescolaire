@@ -23,12 +23,8 @@ workflows:
           # Certificat
           keychain initialize
           echo "$CM_CERTIFICATE" | base64 --decode > /tmp/certificate.p12
-          security import /tmp/certificate.p12 \
-            -k ~/Library/Keychains/codemagic.keychain-db \
-            -P "$CM_CERTIFICATE_PASSWORD" -A
-          security set-key-partition-list \
-            -S apple-tool:,apple:,codesign: -s -k "" \
-            ~/Library/Keychains/codemagic.keychain-db
+          keychain add-certificates --certificate /tmp/certificate.p12 \
+            --certificate-password "$CM_CERTIFICATE_PASSWORD"
           echo "=== Identités ==="
           security find-identity -v -p codesigning
 
