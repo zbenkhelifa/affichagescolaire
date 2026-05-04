@@ -28,10 +28,35 @@ workflows:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain
           # Provisioning profile
           echo $CM_PROVISIONING_PROFILE | base64 --decode > /tmp/profile.mobileprovision
+          PROFILE_DATA=$(security cms -D -i /tmp/profile.mobileprovision)
+          UUID=$(echo "$PROFILE_DATA" | python3 -c "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); print(d['UUID'])")
+          TEAM_ID=$(echo "$PROFILE_DATA" | python3 -c "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); print(d['TeamIdentifier'][0])")
+          PROFILE_NAME=$(echo "$PROFILE_DATA" | python3 -c "import sys,plistlib; d=plistlib.loads(sys.stdin.buffer.read()); print(d['Name'])")
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          UUID=$(grep -a -A1 'UUID' /tmp/profile.mobileprovision | grep -o '[-A-F0-9]\{36\}')
           cp /tmp/profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
-          echo "✓ Signing configuré"
+          # Export options plist requis par xcode-project build-ipa
+          cat > /Users/builder/export_options.plist << PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>teamID</key>
+              <string>$TEAM_ID</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.affichagescolaire.app</key>
+                  <string>$PROFILE_NAME</string>
+              </dict>
+          </dict>
+          </plist>
+          PLIST
+          echo "✓ Signing configuré (Team: $TEAM_ID, Profile: $PROFILE_NAME)"
 
       - name: Install dependencies
         working_directory: app
