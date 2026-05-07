@@ -28,8 +28,9 @@ export const Splashscreen: React.FC = () => {
         </div>
 
         <div className="text-center w-full px-6">
-          <h1 className="font-syne font-black text-white tracking-tight uppercase leading-none mb-1" style={{ fontSize: 'clamp(1rem, 6vw, 1.5rem)' }}>
-            Affichage<span className="text-gradient-gold">Scolaire</span>
+          <h1 className="font-syne font-black text-white tracking-tight uppercase leading-tight mb-1" style={{ fontSize: 'clamp(1rem, 6vw, 1.5rem)' }}>
+            <span className="block">Affichage</span>
+            <span className="block text-gradient-gold">Scolaire</span>
           </h1>
           <div className="flex items-center justify-center gap-3 mt-2">
             <div className="h-px w-8 bg-white/10" />
