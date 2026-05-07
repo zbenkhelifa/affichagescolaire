@@ -50,14 +50,14 @@ export const MobileAuthScreen: React.FC<Props> = ({ onDisplayCode }) => {
         {/* Logo */}
         <div className="flex flex-col items-center gap-3">
           <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-2xl"
-            style={{ background: 'linear-gradient(135deg, #e8b84b, #d4a030)', boxShadow: '0 8px 40px rgba(232,184,75,0.35)' }}
+            className="w-16 h-16 rounded-2xl overflow-hidden shadow-2xl"
+            style={{ boxShadow: '0 8px 40px rgba(232,184,75,0.35)' }}
           >
-            🏫
+            <img src="./icon.png" alt="AffichageScolaire" className="w-full h-full object-cover" />
           </div>
           <div className="text-center">
-            <h1 className="font-syne text-2xl font-black text-white tracking-tight">
-              Tableau<span className="text-gradient-gold">Scolaire</span>
+            <h1 className="font-syne text-xl font-black text-white tracking-tight">
+              Affichage<span className="text-gradient-gold">Scolaire</span>
             </h1>
             <p className="text-white/30 text-xs uppercase tracking-widest mt-1">Affichage numérique</p>
           </div>

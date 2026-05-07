@@ -123,13 +123,13 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
         {/* Logo */}
         <div className={`flex flex-col items-center ${isPortrait ? 'mb-4' : 'mb-8'}`}>
           <div
-            className={`${isPortrait ? 'w-10 h-10 text-xl mb-2' : 'w-16 h-16 text-3xl mb-4'} rounded-2xl flex items-center justify-center shadow-2xl`}
-            style={{ background: 'linear-gradient(135deg, #e8b84b, #d4a030)', boxShadow: '0 8px 40px rgba(232,184,75,0.35)' }}
+            className={`${isPortrait ? 'w-10 h-10 mb-2' : 'w-16 h-16 mb-4'} rounded-2xl overflow-hidden shadow-2xl`}
+            style={{ boxShadow: '0 8px 40px rgba(232,184,75,0.35)' }}
           >
-            🏫
+            <img src="./icon.png" alt="AffichageScolaire" className="w-full h-full object-cover" />
           </div>
-          <h1 className={`font-syne ${isPortrait ? 'text-lg' : 'text-2xl'} font-black text-white tracking-tight`}>
-            Tableau<span className="text-gradient-gold">Scolaire</span>
+          <h1 className={`font-syne ${isPortrait ? 'text-base' : 'text-xl'} font-black text-white tracking-tight`}>
+            Affichage<span className="text-gradient-gold">Scolaire</span>
           </h1>
           {!isPortrait && <p className="text-white/30 text-xs uppercase tracking-widest mt-1">Affichage numérique</p>}
         </div>
