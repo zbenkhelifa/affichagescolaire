@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { School, AppConfig } from '../../../types';
 import { sb } from '../../../services/supabase';
-import { Save, Upload, Copy, Check } from 'lucide-react';
+import { auth } from '../../../services/auth';
+import { Save, Upload, Copy, Check, Lock, Eye, EyeOff } from 'lucide-react';
 import { PanelHeader } from './PanelHeader';
 import { FormCard } from './FormCard';
 import { Btn } from './Btn';
@@ -47,6 +48,11 @@ export const SettingsPanel: React.FC<Props> = ({ school, config, onRefresh }) =>
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);
   const [copied, setCopied] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [pwdForm, setPwdForm] = useState({ newPwd: '', confirmPwd: '' });
+  const [showPwd, setShowPwd] = useState(false);
+  const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdError, setPwdError] = useState('');
+  const [pwdSuccess, setPwdSuccess] = useState('');
 
   const copyCode = () => {
     navigator.clipboard.writeText(school.displayCode);
@@ -93,6 +99,23 @@ export const SettingsPanel: React.FC<Props> = ({ school, config, onRefresh }) =>
       onRefresh();
     } finally {
       setSaving(false);
+    }
+  };
+
+  const savePassword = async () => {
+    setPwdError('');
+    setPwdSuccess('');
+    if (pwdForm.newPwd !== pwdForm.confirmPwd) { setPwdError('Les mots de passe ne correspondent pas.'); return; }
+    if (pwdForm.newPwd.length < 8) { setPwdError('Le mot de passe doit contenir au moins 8 caractères.'); return; }
+    setPwdSaving(true);
+    try {
+      await auth.changePassword(pwdForm.newPwd);
+      setPwdSuccess('Mot de passe modifié avec succès.');
+      setPwdForm({ newPwd: '', confirmPwd: '' });
+    } catch (err: any) {
+      setPwdError(err.message || 'Une erreur est survenue.');
+    } finally {
+      setPwdSaving(false);
     }
   };
 
@@ -253,6 +276,60 @@ export const SettingsPanel: React.FC<Props> = ({ school, config, onRefresh }) =>
           Enregistrer les modifications
         </Btn>
       </div>
+
+      {/* Password change */}
+      <FormCard title="🔒 Changer le mot de passe">
+        <div className="space-y-3">
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
+            <input
+              type={showPwd ? 'text' : 'password'}
+              value={pwdForm.newPwd}
+              onChange={e => { setPwdForm(f => ({ ...f, newPwd: e.target.value })); setPwdError(''); setPwdSuccess(''); }}
+              placeholder="Nouveau mot de passe"
+              className="w-full pl-10 pr-11 py-2.5 rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              onFocus={e => e.target.style.borderColor = 'rgba(232,184,75,0.4)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPwd(v => !v)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
+            >
+              {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
+            <input
+              type={showPwd ? 'text' : 'password'}
+              value={pwdForm.confirmPwd}
+              onChange={e => { setPwdForm(f => ({ ...f, confirmPwd: e.target.value })); setPwdError(''); setPwdSuccess(''); }}
+              placeholder="Confirmer le mot de passe"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors"
+              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              onFocus={e => e.target.style.borderColor = 'rgba(232,184,75,0.4)'}
+              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+            />
+          </div>
+          {pwdError && (
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)' }}>
+              <span className="text-red-400 text-xs">{pwdError}</span>
+            </div>
+          )}
+          {pwdSuccess && (
+            <div className="p-3 rounded-xl" style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)' }}>
+              <span className="text-green-400 text-xs">{pwdSuccess}</span>
+            </div>
+          )}
+          <div className="flex justify-end">
+            <Btn onClick={savePassword} loading={pwdSaving} icon={<Lock className="w-4 h-4" />}>
+              Changer le mot de passe
+            </Btn>
+          </div>
+        </div>
+      </FormCard>
     </div>
   );
 };

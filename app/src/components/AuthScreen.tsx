@@ -14,7 +14,6 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
   const [tab, setTab] = useState<Tab>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
   const [schoolName, setSchoolName] = useState('');
   const [uai, setUai] = useState('');
   const [code, setCode] = useState('');
@@ -36,7 +35,6 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
     setError('');
     setSuccess('');
     setPassword('');
-    setConfirm('');
     setCode('');
     setCodeUai('');
     setSchoolName('');
@@ -66,35 +64,25 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-
-    if (tab === 'register' && password !== confirm) {
-      setError('Les mots de passe ne correspondent pas.');
-      return;
-    }
-    if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.');
-      return;
-    }
-
     setLoading(true);
     try {
-      const user = tab === 'login'
-        ? await auth.signIn(email, password)
-        : await auth.signUp(email, password, schoolName, uai);
-      onAuth(user);
+      if (tab === 'register') {
+        await auth.register(email, schoolName, uai);
+        setSuccess('Inscription réussie ! Un mot de passe temporaire a été envoyé à votre adresse email.');
+        setTab('login');
+        setEmail('');
+        setSchoolName('');
+        setUai('');
+      } else {
+        const user = await auth.signIn(email, password);
+        onAuth(user);
+      }
     } catch (err: any) {
       const msg: string = err.message ?? '';
-      if (msg === 'CONFIRM_EMAIL') {
-        setSuccess('Inscription réussie ! Un email de confirmation a été envoyé. Cliquez sur le lien, puis connectez-vous.');
-        setTab('login');
-        setPassword('');
-        setConfirm('');
-      } else if (msg.includes('Invalid login credentials')) {
+      if (msg.includes('Invalid login credentials')) {
         setError('Email ou mot de passe incorrect.');
-      } else if (msg.includes('User already registered')) {
+      } else if (msg.includes('déjà avec cet email') || msg.includes('already')) {
         setError('Un compte existe déjà avec cet email. Connectez-vous.');
-      } else if (msg.includes('Email not confirmed')) {
-        setError('Confirmez votre email avant de vous connecter.');
       } else {
         setError(msg || 'Une erreur est survenue.');
       }
@@ -224,42 +212,36 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
                     </>
                   )}
 
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
-                    <input
-                      type={showPwd ? 'text' : 'password'}
-                      value={password}
-                      onChange={e => { setPassword(e.target.value); setError(''); }}
-                      placeholder="Mot de passe"
-                      required
-                      className={`w-full pl-10 pr-11 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors`}
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
-                      onFocus={e => e.target.style.borderColor = 'rgba(232,184,75,0.4)'}
-                      onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPwd(v => !v)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
-                    >
-                      {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-
-                  {tab === 'register' && (
+                  {tab === 'login' && (
                     <div className="relative">
                       <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/25 pointer-events-none" />
                       <input
                         type={showPwd ? 'text' : 'password'}
-                        value={confirm}
-                        onChange={e => { setConfirm(e.target.value); setError(''); }}
-                        placeholder="Confirmer le mot de passe"
+                        value={password}
+                        onChange={e => { setPassword(e.target.value); setError(''); }}
+                        placeholder="Mot de passe"
                         required
-                        className={`w-full pl-10 pr-4 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors`}
+                        className={`w-full pl-10 pr-11 ${isPortrait ? 'py-2' : 'py-3'} rounded-xl text-sm text-white placeholder-white/25 focus:outline-none transition-colors`}
                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
                         onFocus={e => e.target.style.borderColor = 'rgba(232,184,75,0.4)'}
                         onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPwd(v => !v)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
+                      >
+                        {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  )}
+
+                  {tab === 'register' && (
+                    <div className="flex items-start gap-2 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(232,184,75,0.07)', border: '1px solid rgba(232,184,75,0.15)' }}>
+                      <Mail className="w-3.5 h-3.5 text-accent mt-0.5 flex-shrink-0" />
+                      <p className="text-white/50 text-xs leading-relaxed">
+                        Un mot de passe temporaire vous sera envoyé par email.
+                      </p>
                     </div>
                   )}
 
@@ -277,7 +259,7 @@ export const AuthScreen: React.FC<Props> = ({ onAuth, onDisplayCode }) => {
 
                   <button
                     type="submit"
-                    disabled={loading || !email || !password || (tab === 'register' && (!confirm || !schoolName || !uai))}
+                    disabled={loading || !email || (tab === 'login' && !password) || (tab === 'register' && (!schoolName || !uai))}
                     className={`w-full ${isPortrait ? 'py-2' : 'py-3'} rounded-xl font-syne font-bold text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed`}
                     style={{ background: 'linear-gradient(135deg, #e8b84b, #d4a030)', color: '#0a1628' }}
                   >

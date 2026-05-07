@@ -5,6 +5,7 @@ import { sb, setDisplayMode, clearSession } from './services/supabase';
 import { auth, AuthUser } from './services/auth';
 import { Splashscreen } from './components/Splashscreen';
 import { AuthScreen } from './components/AuthScreen';
+import { SetPasswordScreen } from './components/SetPasswordScreen';
 import { DisplayMode } from './pages/DisplayMode';
 import { MobileDisplayMode } from './pages/MobileDisplayMode';
 import { MobileAuthScreen } from './components/MobileAuthScreen';
@@ -169,6 +170,10 @@ export default function App() {
   if (!user && !isDisplayCode) {
     if (IS_NATIVE) return <MobileAuthScreen onDisplayCode={handleDisplayCode} />;
     return <AuthScreen onAuth={setUser} onDisplayCode={handleDisplayCode} />;
+  }
+
+  if (user?.mustChangePassword) {
+    return <SetPasswordScreen onDone={() => setUser({ ...user, mustChangePassword: false })} />;
   }
 
   return (
