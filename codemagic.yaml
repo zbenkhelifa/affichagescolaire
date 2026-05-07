@@ -10,7 +10,7 @@ workflows:
         BUNDLE_ID: com.affichagescolaire.app
         APP_NAME: "Affichage Scolaire"
         APP_SCHEME: affichagescolaire
-        APP_VERSION: "2.4"
+        APP_VERSION: "2.5"
         XCODE_SCHEME: App
       xcode: latest
       node: 22

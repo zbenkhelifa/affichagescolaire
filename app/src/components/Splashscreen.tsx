@@ -27,8 +27,8 @@ export const Splashscreen: React.FC = () => {
           <img src="./icon.png" alt="AffichageScolaire" className="w-full h-full object-cover" />
         </div>
 
-        <div className="text-center">
-          <h1 className="font-syne text-2xl font-black text-white tracking-tight uppercase leading-none mb-1">
+        <div className="text-center w-full px-6">
+          <h1 className="font-syne font-black text-white tracking-tight uppercase leading-none mb-1" style={{ fontSize: 'clamp(1rem, 6vw, 1.5rem)' }}>
             Affichage<span className="text-gradient-gold">Scolaire</span>
           </h1>
           <div className="flex items-center justify-center gap-3 mt-2">
